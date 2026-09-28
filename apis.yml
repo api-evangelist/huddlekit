@@ -1,0 +1,31 @@
+aid: huddlekit
+name: Huddlekit
+description: 'Huddlekit is a company surfaced via the API Evangelist harvest backlog (source: new-submission)
+  and added to the network as a stub for full-pipeline profiling.'
+url: https://raw.githubusercontent.com/api-evangelist/huddlekit/refs/heads/main/apis.yml
+x-type: company
+x-source: harvest:new-submission
+x-tier: stub
+x-tier-reason: harvest
+specificationVersion: '0.20'
+created: '2026-09-28'
+modified: '2026-09-28'
+tags:
+- Company
+apis: []
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com
+- FN: APIs.json
+  email: info@apis.io
+common:
+- type: Website
+  url: https://huddlekit.com
+- type: Documentation
+  url: https://huddlekit.com/integrations/api
+x-submission-notes: Visual website feedback (Everace AB, Stockholm). OpenAPI https://huddlekit.com/openapi.json
+  (base https://app.huddlekit.com/api/v1); api-catalog; llms.txt; remote MCP (OAuth) https://mcp.huddlekit.com/mcp,
+  MCP Registry com.huddlekit/huddlekit
+x-submission-probe: root 200, invented 404, OpenAPI 3.1 (7 paths), api-catalog linkset 200, llms.txt 200,
+  MCP 401 JSON (OAuth)
+x-submitted-by: hello@huddlekit.com (apis.io/add, 2026-09-28)
