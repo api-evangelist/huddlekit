@@ -1,0 +1,1 @@
+{"resource":"https://mcp.huddlekit.com","authorization_servers":["https://vdviypghjuqsvtsebpnp.supabase.co/auth/v1"],"bearer_methods_supported":["header"],"scopes_supported":["openid","email","profile"],"resource_documentation":"https://huddlekit.com/support/connecting-ai-tools-with-mcp"}

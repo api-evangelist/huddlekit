@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/huddlekit/main/json-schema/huddlekit-list-projects-response-schema.json",
+  "title": "ListProjectsResponse",
+  "x-generated": "2026-09-28",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/_original/huddlekit-api-openapi.json#/components/schemas/ListProjectsResponse",
+  "type": "object",
+  "required": [
+    "projects"
+  ],
+  "properties": {
+    "projects": {
+      "type": "array",
+      "description": "Every website project, web app and document in the workspace, in that order, each group newest first. Not paginated.",
+      "items": {
+        "$ref": "#/$defs/Project"
+      }
+    }
+  },
+  "$defs": {
+    "Project": {
+      "type": "object",
+      "description": "Something comments can be attached to: a website project, a web app or a document.",
+      "required": [
+        "id",
+        "name",
+        "url",
+        "created_at",
+        "surface"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Parent id. Pass it as `parent_id` (with the same `surface`) to list or create comments."
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name."
+        },
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Base URL of the website or web app. Always null for documents; may be null for a web app."
+        },
+        "created_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "description": "When it was created."
+        },
+        "surface": {
+          "$ref": "#/$defs/Surface"
+        }
+      }
+    },
+    "Surface": {
+      "type": "string",
+      "enum": [
+        "website",
+        "webapp",
+        "document"
+      ],
+      "description": "What a comment is attached to. `website`: a website project (the parent is a project). `webapp`: a web app that runs the Huddlekit SDK widget (the parent is a web app). `document`: an uploaded PDF, image or video (the parent is a document)."
+    }
+  }
+}

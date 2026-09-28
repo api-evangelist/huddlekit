@@ -1,0 +1,8 @@
+# Huddlekit Security Policy
+# https://securitytxt.org/ — RFC 9116
+
+Contact: mailto:hello@huddlekit.com
+Expires: 2027-02-12T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://huddlekit.com/.well-known/security.txt
+Policy: https://huddlekit.com/privacy

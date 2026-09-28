@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/huddlekit/main/json-schema/huddlekit-api-key-info-schema.json",
+  "title": "ApiKeyInfo",
+  "description": "The workspace and permissions of the API key that made the request.",
+  "x-generated": "2026-09-28",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/_original/huddlekit-api-openapi.json#/components/schemas/ApiKeyInfo",
+  "type": "object",
+  "required": [
+    "workspace_id",
+    "workspace_name",
+    "key_id",
+    "scopes",
+    "source"
+  ],
+  "properties": {
+    "workspace_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id of the workspace the key belongs to."
+    },
+    "workspace_name": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Name of the workspace, or null if it could not be read."
+    },
+    "key_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id of this API key (not the secret key itself)."
+    },
+    "scopes": {
+      "type": "array",
+      "description": "Scopes granted to this key. `read` allows GET calls; `write` allows POST, PATCH and DELETE calls.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "read",
+          "write"
+        ]
+      }
+    },
+    "source": {
+      "type": "string",
+      "description": "The `source` value that events caused by this key carry, `connector:<key_id>`. A consumer that both reads and writes comments should ignore events whose `source` equals this value, to avoid loops."
+    }
+  }
+}

@@ -1,0 +1,270 @@
+{
+  "@context": {
+    "@vocab": "https://huddlekit.com/schema#",
+    "schema": "https://schema.org/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "huddlekit": "https://huddlekit.com/schema#",
+    "Error": "huddlekit:Error",
+    "error": {
+      "@id": "huddlekit:error",
+      "@type": "xsd:string"
+    },
+    "detail": {
+      "@id": "huddlekit:detail",
+      "@type": "xsd:string"
+    },
+    "PlanRequiredError": "huddlekit:PlanRequiredError",
+    "requiredPlans": {
+      "@id": "huddlekit:requiredPlans",
+      "@container": "@list"
+    },
+    "Surface": "huddlekit:Surface",
+    "CommentStatus": "huddlekit:CommentStatus",
+    "EventType": "huddlekit:EventType",
+    "ApiKeyInfo": "huddlekit:ApiKeyInfo",
+    "workspace_id": {
+      "@id": "huddlekit:workspace_id",
+      "@type": "xsd:string"
+    },
+    "workspace_name": {
+      "@id": "huddlekit:workspace_name",
+      "@type": "xsd:string"
+    },
+    "key_id": {
+      "@id": "huddlekit:key_id",
+      "@type": "xsd:string"
+    },
+    "scopes": {
+      "@id": "huddlekit:scopes",
+      "@container": "@list"
+    },
+    "source": {
+      "@id": "huddlekit:source",
+      "@type": "xsd:string"
+    },
+    "Project": "huddlekit:Project",
+    "id": {
+      "@id": "huddlekit:id",
+      "@type": "xsd:string"
+    },
+    "name": {
+      "@id": "huddlekit:name",
+      "@type": "xsd:string"
+    },
+    "url": {
+      "@id": "huddlekit:url",
+      "@type": "xsd:string"
+    },
+    "created_at": {
+      "@id": "huddlekit:created_at",
+      "@type": "xsd:dateTime"
+    },
+    "surface": {
+      "@id": "huddlekit:surface",
+      "@type": "@id"
+    },
+    "ListProjectsResponse": "huddlekit:ListProjectsResponse",
+    "projects": {
+      "@id": "huddlekit:projects",
+      "@container": "@list"
+    },
+    "WebsiteComment": "huddlekit:WebsiteComment",
+    "comment_number": {
+      "@id": "huddlekit:comment_number",
+      "@type": "xsd:integer"
+    },
+    "text": {
+      "@id": "huddlekit:text",
+      "@type": "xsd:string"
+    },
+    "status": {
+      "@id": "huddlekit:status",
+      "@type": "xsd:string"
+    },
+    "priority": {
+      "@id": "huddlekit:priority",
+      "@type": "xsd:string"
+    },
+    "resolved": {
+      "@id": "huddlekit:resolved",
+      "@type": "xsd:boolean"
+    },
+    "is_private": {
+      "@id": "huddlekit:is_private",
+      "@type": "xsd:boolean"
+    },
+    "path": {
+      "@id": "huddlekit:path",
+      "@type": "xsd:string"
+    },
+    "screenshot": {
+      "@id": "huddlekit:screenshot",
+      "@type": "xsd:string"
+    },
+    "updated_at": {
+      "@id": "huddlekit:updated_at",
+      "@type": "xsd:dateTime"
+    },
+    "WebappComment": "huddlekit:WebappComment",
+    "page_title": {
+      "@id": "huddlekit:page_title",
+      "@type": "xsd:string"
+    },
+    "DocumentComment": "huddlekit:DocumentComment",
+    "page_number": {
+      "@id": "huddlekit:page_number",
+      "@type": "xsd:integer"
+    },
+    "video_timestamp": {
+      "@id": "huddlekit:video_timestamp",
+      "@type": "xsd:decimal"
+    },
+    "ListCommentsResponse": "huddlekit:ListCommentsResponse",
+    "comments": {
+      "@id": "huddlekit:comments",
+      "@container": "@list"
+    },
+    "CreateCommentRequest": "huddlekit:CreateCommentRequest",
+    "parent_id": {
+      "@id": "huddlekit:parent_id",
+      "@type": "xsd:string"
+    },
+    "project_id": {
+      "@id": "huddlekit:project_id",
+      "@type": "xsd:string"
+    },
+    "CreatedComment": "huddlekit:CreatedComment",
+    "CreateCommentResponse": "huddlekit:CreateCommentResponse",
+    "comment": {
+      "@id": "huddlekit:comment",
+      "@type": "@id"
+    },
+    "UpdateCommentStatusRequest": "huddlekit:UpdateCommentStatusRequest",
+    "UpdatedComment": "huddlekit:UpdatedComment",
+    "UpdateCommentStatusResponse": "huddlekit:UpdateCommentStatusResponse",
+    "WebhookSubscription": "huddlekit:WebhookSubscription",
+    "event_types": {
+      "@id": "huddlekit:event_types",
+      "@container": "@list"
+    },
+    "is_active": {
+      "@id": "huddlekit:is_active",
+      "@type": "xsd:boolean"
+    },
+    "disabled_at": {
+      "@id": "huddlekit:disabled_at",
+      "@type": "xsd:dateTime"
+    },
+    "consecutive_failures": {
+      "@id": "huddlekit:consecutive_failures",
+      "@type": "xsd:integer"
+    },
+    "ListWebhookSubscriptionsResponse": "huddlekit:ListWebhookSubscriptionsResponse",
+    "hooks": {
+      "@id": "huddlekit:hooks",
+      "@container": "@list"
+    },
+    "CreateWebhookSubscriptionRequest": "huddlekit:CreateWebhookSubscriptionRequest",
+    "targetUrl": {
+      "@id": "huddlekit:targetUrl",
+      "@type": "@id"
+    },
+    "target_url": {
+      "@id": "huddlekit:target_url",
+      "@type": "@id"
+    },
+    "events": {
+      "@id": "huddlekit:events",
+      "@container": "@list"
+    },
+    "WebhookSubscriptionCreated": "huddlekit:WebhookSubscriptionCreated",
+    "secret": {
+      "@id": "huddlekit:secret",
+      "@type": "xsd:string"
+    },
+    "secret_shown_once": {
+      "@id": "huddlekit:secret_shown_once",
+      "@type": "xsd:boolean"
+    },
+    "known_platform": {
+      "@id": "huddlekit:known_platform",
+      "@type": "xsd:boolean"
+    },
+    "WebhookSubscriptionResubscribed": "huddlekit:WebhookSubscriptionResubscribed",
+    "resubscribed": {
+      "@id": "huddlekit:resubscribed",
+      "@type": "xsd:boolean"
+    },
+    "DeleteWebhookSubscriptionResponse": "huddlekit:DeleteWebhookSubscriptionResponse",
+    "deleted": {
+      "@id": "huddlekit:deleted",
+      "@type": "xsd:boolean"
+    },
+    "WebsitePage": "huddlekit:WebsitePage",
+    "WebappPage": "huddlekit:WebappPage",
+    "title": {
+      "@id": "huddlekit:title",
+      "@type": "xsd:string"
+    },
+    "DocumentPage": "huddlekit:DocumentPage",
+    "WebhookAuthor": "huddlekit:WebhookAuthor",
+    "kind": {
+      "@id": "huddlekit:kind",
+      "@type": "xsd:string"
+    },
+    "WebhookComment": "huddlekit:WebhookComment",
+    "number": {
+      "@id": "huddlekit:number",
+      "@type": "xsd:integer"
+    },
+    "page": {
+      "@id": "huddlekit:page"
+    },
+    "permalink": {
+      "@id": "huddlekit:permalink",
+      "@type": "@id"
+    },
+    "browser_info": {
+      "@id": "huddlekit:browser_info"
+    },
+    "author": {
+      "@id": "huddlekit:author"
+    },
+    "Change": "huddlekit:Change",
+    "old": {
+      "@id": "huddlekit:old"
+    },
+    "new": {
+      "@id": "huddlekit:new"
+    },
+    "WebhookPayload": "huddlekit:WebhookPayload",
+    "event": {
+      "@id": "huddlekit:event",
+      "@type": "@id"
+    },
+    "event_id": {
+      "@id": "huddlekit:event_id",
+      "@type": "xsd:string"
+    },
+    "occurred_at": {
+      "@id": "huddlekit:occurred_at",
+      "@type": "xsd:dateTime"
+    },
+    "changed": {
+      "@id": "huddlekit:changed"
+    },
+    "ListRecentEventsResponse": "huddlekit:ListRecentEventsResponse",
+    "sample": {
+      "@id": "huddlekit:sample",
+      "@type": "xsd:boolean"
+    }
+  },
+  "@type": "schema:Dataset",
+  "schema:name": "Huddlekit API JSON-LD context",
+  "schema:description": "A JSON-LD @context for the objects Huddlekit's own API contract declares: one class per component schema, one property per declared field, typed from the contract. Derived by script (derive-json-ld.py, 2026-09-28) from openapi/_original/huddlekit-api-openapi.json.",
+  "dcterms:created": "2026-09-28",
+  "dcterms:source": [
+    "openapi/_original/huddlekit-api-openapi.json"
+  ]
+}

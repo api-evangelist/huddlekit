@@ -1,0 +1,372 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/huddlekit/main/json-schema/huddlekit-list-comments-response-schema.json",
+  "title": "ListCommentsResponse",
+  "x-generated": "2026-09-28",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/_original/huddlekit-api-openapi.json#/components/schemas/ListCommentsResponse",
+  "type": "object",
+  "required": [
+    "comments",
+    "surface"
+  ],
+  "properties": {
+    "comments": {
+      "type": "array",
+      "description": "Comments on the parent, newest first. The shape of each item depends on `surface`.",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/WebsiteComment"
+          },
+          {
+            "$ref": "#/$defs/WebappComment"
+          },
+          {
+            "$ref": "#/$defs/DocumentComment"
+          }
+        ]
+      }
+    },
+    "surface": {
+      "$ref": "#/$defs/Surface"
+    }
+  },
+  "$defs": {
+    "DocumentComment": {
+      "type": "object",
+      "description": "A comment on a document (`surface: document`). Document comments have no path, URL or screenshot.",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "comment_number",
+        "text",
+        "status",
+        "priority",
+        "resolved",
+        "is_private",
+        "page_number",
+        "video_timestamp",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Comment id."
+        },
+        "comment_number": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Sequential number of the comment within its parent (shown as #42 in Huddlekit)."
+        },
+        "text": {
+          "type": "string",
+          "description": "The comment text as written."
+        },
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "open",
+            "in-review",
+            "in-progress",
+            "resolved",
+            null
+          ],
+          "description": "Workflow status: `open`, `in-review`, `in-progress` or `resolved`."
+        },
+        "priority": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "Low",
+            "Medium",
+            "Critical",
+            null
+          ],
+          "description": "Priority set in Huddlekit, or null when none is set."
+        },
+        "resolved": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "Whether the comment is resolved."
+        },
+        "is_private": {
+          "type": "boolean",
+          "description": "Whether the comment is hidden from guests."
+        },
+        "page_number": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Page of the document the comment is on (1-based)."
+        },
+        "video_timestamp": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Position in seconds, for comments on a video; otherwise null."
+        },
+        "created_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "description": "When the comment was created."
+        },
+        "updated_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "description": "When the comment was last updated."
+        }
+      }
+    },
+    "Surface": {
+      "type": "string",
+      "enum": [
+        "website",
+        "webapp",
+        "document"
+      ],
+      "description": "What a comment is attached to. `website`: a website project (the parent is a project). `webapp`: a web app that runs the Huddlekit SDK widget (the parent is a web app). `document`: an uploaded PDF, image or video (the parent is a document)."
+    },
+    "WebappComment": {
+      "type": "object",
+      "description": "A comment on a web app (`surface: webapp`).",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "comment_number",
+        "text",
+        "status",
+        "priority",
+        "resolved",
+        "is_private",
+        "url",
+        "path",
+        "page_title",
+        "screenshot",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Comment id."
+        },
+        "comment_number": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Sequential number of the comment within its parent (shown as #42 in Huddlekit)."
+        },
+        "text": {
+          "type": "string",
+          "description": "The comment text as written."
+        },
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "open",
+            "in-review",
+            "in-progress",
+            "resolved",
+            null
+          ],
+          "description": "Workflow status: `open`, `in-review`, `in-progress` or `resolved`."
+        },
+        "priority": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "Low",
+            "Medium",
+            "Critical",
+            null
+          ],
+          "description": "Priority set in Huddlekit, or null when none is set."
+        },
+        "resolved": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "Whether the comment is resolved."
+        },
+        "is_private": {
+          "type": "boolean",
+          "description": "Whether the comment is hidden from guests."
+        },
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Full URL of the page the comment is on."
+        },
+        "path": {
+          "type": "string",
+          "description": "Page path."
+        },
+        "page_title": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Title of the page the comment is on."
+        },
+        "screenshot": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Screenshot of the page, or null if none has been captured."
+        },
+        "created_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "description": "When the comment was created."
+        },
+        "updated_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "description": "When the comment was last updated."
+        }
+      }
+    },
+    "WebsiteComment": {
+      "type": "object",
+      "description": "A comment on a website project (`surface: website`).",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "comment_number",
+        "text",
+        "status",
+        "priority",
+        "resolved",
+        "is_private",
+        "path",
+        "screenshot",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Comment id."
+        },
+        "comment_number": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Sequential number of the comment within its parent (shown as #42 in Huddlekit)."
+        },
+        "text": {
+          "type": "string",
+          "description": "The comment text as written."
+        },
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "open",
+            "in-review",
+            "in-progress",
+            "resolved",
+            null
+          ],
+          "description": "Workflow status: `open`, `in-review`, `in-progress` or `resolved`."
+        },
+        "priority": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "Low",
+            "Medium",
+            "Critical",
+            null
+          ],
+          "description": "Priority set in Huddlekit, or null when none is set."
+        },
+        "resolved": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "Whether the comment is resolved."
+        },
+        "is_private": {
+          "type": "boolean",
+          "description": "Whether the comment is hidden from guests."
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Page path on the website, relative to the project's URL."
+        },
+        "screenshot": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Screenshot of the page, or null if none has been captured."
+        },
+        "created_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "description": "When the comment was created."
+        },
+        "updated_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "description": "When the comment was last updated."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+generated: '2026-09-28'
+method: searched
+generator: extract-docs-artifacts.py (local)
+source: https://huddlekit.com/pricing
+sources:
+- https://huddlekit.com/pricing
+name: Huddlekit pricing
+audience: business-product
+pricing_basis: per-seat
+plans:
+- name: Free
+  price_text: $0
+  price: 0
+  description: Free forever
+  features:
+  - 3 team members
+  - 1 project
+  - Unlimited guests
+  - 100 MB storage
+- name: Pro
+  price_text: $16 Billed yearly ($190)
+  description: 3 team members, Unlimited projects, 5 GB storage, Connect Claude & Cursor (MCP)
+  features:
+  - Unlimited projects
+  - Unlimited guests
+  - 5 GB storage
+  - Connect Claude & Cursor (MCP)
+- name: Team
+  price_text: $33 Billed yearly ($390)
+  description: 15 team members, Unlimited projects, 50 GB storage, Integrations, API access
+  features:
+  - Unlimited projects
+  - Unlimited guests
+  - 50 GB storage
+  - Integrations
+  - API access
+docs: https://huddlekit.com/pricing

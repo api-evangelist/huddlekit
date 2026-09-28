@@ -1,0 +1,227 @@
+generated: '2026-09-28'
+method: derived
+generator: derive-vocabulary.py
+source: openapi/_original/huddlekit-api-openapi.json
+vocabulary:
+  name: Huddlekit Domain Vocabulary
+  description: 'Terms declared by Huddlekit''s own API contract: its resource groups, objects and enumerations, with the contract''s definitions.
+    Derived, not authored.'
+  version: '2026-09-28'
+  terms:
+  - term: Account
+    definition: The API key and its workspace.
+    tags:
+    - Resource Group
+    source: openapi/_original/huddlekit-api-openapi.json
+  - term: Projects
+    definition: Website projects, web apps and documents that comments are attached to.
+    tags:
+    - Resource Group
+    source: openapi/_original/huddlekit-api-openapi.json
+  - term: Comments
+    definition: Read, create and change the status of comments.
+    tags:
+    - Resource Group
+    source: openapi/_original/huddlekit-api-openapi.json
+  - term: Webhook subscriptions
+    definition: Subscribe URLs to comment events (REST hooks).
+    tags:
+    - Resource Group
+    source: openapi/_original/huddlekit-api-openapi.json
+  - term: Events
+    definition: Sample event payloads.
+    tags:
+    - Resource Group
+    source: openapi/_original/huddlekit-api-openapi.json
+  - term: Webhook events
+    definition: Requests Huddlekit sends to subscribed URLs.
+    tags:
+    - Resource Group
+    source: openapi/_original/huddlekit-api-openapi.json
+  - term: Error
+    definition: Error body returned by every failed call.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/Error
+  - term: PlanRequiredError
+    definition: Returned with 403 when the key's workspace is not on a plan that includes API access.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/PlanRequiredError
+  - term: Surface
+    definition: 'What a comment is attached to. `website`: a website project (the parent is a project). `webapp`: a web app that runs the Huddlekit
+      SDK widget (the parent is a web app). `document`: an uploaded PDF, image or video (the parent is a document).'
+    tags:
+    - Enumeration
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/Surface
+  - term: CommentStatus
+    definition: Workflow status of a comment. Setting `resolved` also marks the comment resolved; any other value marks it unresolved.
+    tags:
+    - Enumeration
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/CommentStatus
+  - term: EventType
+    definition: '`comment.created`: a comment was added. `comment.status_changed`: its status changed. `comment.text_changed`: its text was edited.
+      `comment.screenshot_ready`: its screenshot finished capturing (website and webapp comments only). The **Send test event** button in the
+      Huddlekit app also sends `ping`, with a made-up comment and no `source` or `permalink`; answer it with any 2xx and don''t treat it as '
+    tags:
+    - Enumeration
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/EventType
+  - term: ApiKeyInfo
+    definition: The workspace and permissions of the API key that made the request.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/ApiKeyInfo
+  - term: Project
+    definition: 'Something comments can be attached to: a website project, a web app or a document.'
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/Project
+  - term: ListProjectsResponse
+    definition: 'Object declared by the contract with fields: projects.'
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/ListProjectsResponse
+  - term: WebsiteComment
+    definition: 'A comment on a website project (`surface: website`).'
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/WebsiteComment
+  - term: WebappComment
+    definition: 'A comment on a web app (`surface: webapp`).'
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/WebappComment
+  - term: DocumentComment
+    definition: 'A comment on a document (`surface: document`). Document comments have no path, URL or screenshot.'
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/DocumentComment
+  - term: ListCommentsResponse
+    definition: 'Object declared by the contract with fields: comments, surface.'
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/ListCommentsResponse
+  - term: CreateCommentRequest
+    definition: 'A new comment. Which location fields are allowed depends on `surface`: `path` for website; `url`, `page_title` and `path` for
+      webapp; `page_number` and `video_timestamp` for document. Sending a location field that belongs to another surface is a 400 (except `path`
+      on a document, which is ignored). A null or empty-string location field counts as not sent.'
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/CreateCommentRequest
+  - term: CreatedComment
+    definition: The comment that was created.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/CreatedComment
+  - term: CreateCommentResponse
+    definition: 'Object declared by the contract with fields: comment, surface.'
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/CreateCommentResponse
+  - term: UpdateCommentStatusRequest
+    definition: The new status. `status` is the only writable field; sending `text` is refused with a 400. Other fields are ignored.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/UpdateCommentStatusRequest
+  - term: UpdatedComment
+    definition: The comment after the update.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/UpdatedComment
+  - term: UpdateCommentStatusResponse
+    definition: 'Object declared by the contract with fields: comment, surface.'
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/UpdateCommentStatusResponse
+  - term: WebhookSubscription
+    definition: A webhook subscription created with this API key.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/WebhookSubscription
+  - term: ListWebhookSubscriptionsResponse
+    definition: 'Object declared by the contract with fields: hooks.'
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/ListWebhookSubscriptionsResponse
+  - term: CreateWebhookSubscriptionRequest
+    definition: The URL to deliver events to and, optionally, which events. `target_url` and `url` are accepted as alternative spellings of `targetUrl`,
+      and `events` as an alternative spelling of `event_types`.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/CreateWebhookSubscriptionRequest
+  - term: WebhookSubscriptionCreated
+    definition: A new subscription. This is the only time the signing secret is returned.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/WebhookSubscriptionCreated
+  - term: WebhookSubscriptionResubscribed
+    definition: This key already had a subscription for the same URL. It was reactivated and its event types replaced. The existing signing secret
+      is kept and is not returned.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/WebhookSubscriptionResubscribed
+  - term: DeleteWebhookSubscriptionResponse
+    definition: 'Object declared by the contract with fields: deleted, id.'
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/DeleteWebhookSubscriptionResponse
+  - term: Website page
+    definition: Location of a website comment.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/WebsitePage
+  - term: Web app page
+    definition: Location of a web app comment.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/WebappPage
+  - term: Document page
+    definition: Location of a document comment.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/DocumentPage
+  - term: WebhookAuthor
+    definition: Who wrote the comment.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/WebhookAuthor
+  - term: WebhookComment
+    definition: The comment as it is when the event is sent.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/WebhookComment
+  - term: Change
+    definition: Before and after values of a changed field.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/Change
+  - term: WebhookPayload
+    definition: Body of every webhook delivery, and of each item returned by `GET /events/recent`.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/WebhookPayload
+  - term: CommentCreatedEvent
+    definition: Payload of a comment.created delivery. `changed` is null.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/CommentCreatedEvent
+  - term: CommentStatusChangedEvent
+    definition: Payload of a comment.status_changed delivery.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/CommentStatusChangedEvent
+  - term: CommentTextChangedEvent
+    definition: Payload of a comment.text_changed delivery.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/CommentTextChangedEvent
+  - term: CommentScreenshotReadyEvent
+    definition: Payload of a comment.screenshot_ready delivery. Sent the first time a website or web app comment gets a screenshot.
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/CommentScreenshotReadyEvent
+  - term: ListRecentEventsResponse
+    definition: 'Object declared by the contract with fields: events, sample.'
+    tags:
+    - Object
+    source: openapi/_original/huddlekit-api-openapi.json#/components/schemas/ListRecentEventsResponse

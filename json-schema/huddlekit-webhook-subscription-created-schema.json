@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/huddlekit/main/json-schema/huddlekit-webhook-subscription-created-schema.json",
+  "title": "WebhookSubscriptionCreated",
+  "description": "A new subscription. This is the only time the signing secret is returned.",
+  "x-generated": "2026-09-28",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/_original/huddlekit-api-openapi.json#/components/schemas/WebhookSubscriptionCreated",
+  "type": "object",
+  "required": [
+    "id",
+    "url",
+    "event_types",
+    "secret",
+    "secret_shown_once",
+    "known_platform"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Subscription id."
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "The URL events will be POSTed to."
+    },
+    "event_types": {
+      "type": "array",
+      "description": "Event types delivered. Empty means every event type.",
+      "items": {
+        "$ref": "#/$defs/EventType"
+      }
+    },
+    "secret": {
+      "type": "string",
+      "description": "Signing secret (`whsec_` followed by 64 hex characters) used for the `X-Huddlekit-Signature` header on deliveries to this URL. Shown once and cannot be retrieved again; store it now."
+    },
+    "secret_shown_once": {
+      "type": "boolean",
+      "const": true,
+      "description": "Always true: the secret will not be shown again."
+    },
+    "known_platform": {
+      "type": "boolean",
+      "description": "True when the subscription was made by a platform Huddlekit recognises, such as Zapier."
+    }
+  },
+  "$defs": {
+    "EventType": {
+      "type": "string",
+      "enum": [
+        "comment.created",
+        "comment.status_changed",
+        "comment.text_changed",
+        "comment.screenshot_ready"
+      ],
+      "description": "`comment.created`: a comment was added. `comment.status_changed`: its status changed. `comment.text_changed`: its text was edited. `comment.screenshot_ready`: its screenshot finished capturing (website and webapp comments only). The **Send test event** button in the Huddlekit app also sends `ping`, with a made-up comment and no `source` or `permalink`; answer it with any 2xx and don't treat it as a real event."
+    }
+  }
+}

@@ -1,31 +1,121 @@
 aid: huddlekit
 name: Huddlekit
-description: 'Huddlekit is a company surfaced via the API Evangelist harvest backlog (source: new-submission)
-  and added to the network as a stub for full-pipeline profiling.'
+image: https://huddlekit.com/og-image.png
+description: Huddlekit provides a visual annotation tool that enables website feedback collection directly on live or staging sites. Teams can
+  pin comments, screenshots, and technical details, turning feedback into actionable tasks. The platform integrates with popular tools like Linear,
+  ClickUp, Notion, Slack, and Zapier, and offers API access for custom workflows. It targets agencies, freelancers, QA teams, and product teams
+  seeking streamlined client communication and feedback management.
 url: https://raw.githubusercontent.com/api-evangelist/huddlekit/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:new-submission
-x-tier: stub
-x-tier-reason: harvest
+x-tier: profiled
+x-tier-reason: enrichment pass 2026-09-28 (modular-v1; was harvest)
 specificationVersion: '0.20'
 created: '2026-09-28'
 modified: '2026-09-28'
 tags:
-- Company
-apis: []
+- Visual Annotation
+- Website Feedback
+- Developer Tools
+- AI Integration
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Spectral
+  url: rules/huddlekit-rules.yml
+- type: JSONLD
+  url: json-ld/huddlekit-context.jsonld
+- type: Vocabulary
+  url: vocabulary/huddlekit-vocabulary.yml
+- type: Conformance
+  url: conformance/huddlekit-conformance.yml
+- type: GettingStarted
+  url: https://huddlekit.com/support/integrations
+- type: Plans
+  url: plans/huddlekit-plans-pricing.yml
+- type: Webhooks
+  url: asyncapi/huddlekit-webhooks.yml
+- type: DataModel
+  url: data-model/huddlekit-data-model.yml
+- type: Security
+  url: https://huddlekit.com/privacy
+- type: ErrorCatalog
+  url: errors/huddlekit-problem-types.yml
+- type: LLMsTxt
+  url: llms/huddlekit-llms.txt
+- type: MCPServer
+  url: mcp/huddlekit-mcp.yml
+- type: SecurityTxt
+  url: well-known/huddlekit-security.txt
+- type: WellKnown
+  url: well-known/huddlekit-well-known.yml
+- type: Hosts
+  url: hosts/huddlekit-hosts.yml
+- type: Vendors
+  url: vendors/huddlekit-vendors.yml
+- type: APIReference
+  url: https://huddlekit.com/llms.txt
+- type: VulnerabilityDisclosure
+  url: security/huddlekit-vulnerability-disclosure.yml
+- type: DomainSecurity
+  url: security/huddlekit-domain-security.yml
 - type: Website
   url: https://huddlekit.com
 - type: Documentation
   url: https://huddlekit.com/integrations/api
-x-submission-notes: Visual website feedback (Everace AB, Stockholm). OpenAPI https://huddlekit.com/openapi.json
-  (base https://app.huddlekit.com/api/v1); api-catalog; llms.txt; remote MCP (OAuth) https://mcp.huddlekit.com/mcp,
-  MCP Registry com.huddlekit/huddlekit
-x-submission-probe: root 200, invented 404, OpenAPI 3.1 (7 paths), api-catalog linkset 200, llms.txt 200,
-  MCP 401 JSON (OAuth)
+- type: Support
+  url: https://huddlekit.com/support
+- type: Blog
+  url: https://huddlekit.com/blog
+- type: Pricing
+  url: https://huddlekit.com/pricing
+- type: SignUp
+  url: https://huddlekit.com
+- type: TermsOfService
+  url: https://huddlekit.com/terms
+- type: PrivacyPolicy
+  url: https://huddlekit.com/privacy
+- type: Postman
+  url: https://www.postman.com/huddlekit/workspace
+apis:
+- name: Huddlekit API
+  description: Read and create feedback comments, change their status and subscribe to comment webhooks.
+  humanURL: https://huddlekit.com/integrations/api
+  baseURL: https://app.huddlekit.com/api/v1
+  aid: huddlekit:huddlekit-api
+- aid: huddlekit:huddlekit-api-api
+  name: Huddlekit API API
+  description: 'The Huddlekit REST API reads a workspace''s projects, web apps, documents and comments, creates comments, changes a comment''s
+    status
+
+    and manages webhook subscriptions. It cannot edit a comment''s text or delete comments.'
+  humanURL: https://huddlekit.com/llms.txt
+  baseURL: https://app.huddlekit.com/api/v1
+  properties:
+  - type: OpenAPI
+    url: openapi/_original/huddlekit-api-openapi.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-create-comment-request-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-webhook-subscription-created-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-create-webhook-subscription-request-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-api-key-info-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-list-comments-response-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-list-projects-response-schema.json
+x-submission-notes: Visual website feedback (Everace AB, Stockholm). OpenAPI https://huddlekit.com/openapi.json (base https://app.huddlekit.com/api/v1);
+  api-catalog; llms.txt; remote MCP (OAuth) https://mcp.huddlekit.com/mcp, MCP Registry com.huddlekit/huddlekit
+x-submission-probe: root 200, invented 404, OpenAPI 3.1 (7 paths), api-catalog linkset 200, llms.txt 200, MCP 401 JSON (OAuth)
 x-submitted-by: hello@huddlekit.com (apis.io/add, 2026-09-28)
+x-enrichment:
+  date: '2026-09-28'
+  status: enriched
+  artifacts_added: 19
+  pass: modular-v1
+  engine: identity=local,contract=local,surfaces=local,docs=local,regulatory=local

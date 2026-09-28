@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/huddlekit/main/json-schema/huddlekit-create-webhook-subscription-request-schema.json",
+  "title": "CreateWebhookSubscriptionRequest",
+  "description": "The URL to deliver events to and, optionally, which events. `target_url` and `url` are accepted as alternative spellings of `targetUrl`, and `events` as an alternative spelling of `event_types`.",
+  "x-generated": "2026-09-28",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/_original/huddlekit-api-openapi.json#/components/schemas/CreateWebhookSubscriptionRequest",
+  "type": "object",
+  "required": [
+    "targetUrl"
+  ],
+  "properties": {
+    "targetUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://.+",
+      "description": "The https:// URL to POST events to. Must be a public URL outside Huddlekit."
+    },
+    "target_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Alternative spelling of `targetUrl`, used when `targetUrl` is absent."
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Alternative spelling of `targetUrl`, used when `targetUrl` and `target_url` are absent."
+    },
+    "event_types": {
+      "type": "array",
+      "description": "Event types to deliver. Omit it, or send an empty array, to receive every event type. Unknown values are a 400.",
+      "items": {
+        "$ref": "#/$defs/EventType"
+      }
+    },
+    "events": {
+      "type": "array",
+      "description": "Alternative spelling of `event_types`, used when `event_types` is absent.",
+      "items": {
+        "$ref": "#/$defs/EventType"
+      }
+    }
+  },
+  "$defs": {
+    "EventType": {
+      "type": "string",
+      "enum": [
+        "comment.created",
+        "comment.status_changed",
+        "comment.text_changed",
+        "comment.screenshot_ready"
+      ],
+      "description": "`comment.created`: a comment was added. `comment.status_changed`: its status changed. `comment.text_changed`: its text was edited. `comment.screenshot_ready`: its screenshot finished capturing (website and webapp comments only). The **Send test event** button in the Huddlekit app also sends `ping`, with a made-up comment and no `source` or `permalink`; answer it with any 2xx and don't treat it as a real event."
+    }
+  }
+}

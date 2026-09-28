@@ -1,0 +1,40 @@
+generated: '2026-09-28'
+method: probed
+source: https://huddlekit.com/privacy
+signals:
+  data_retention:
+    url: https://huddlekit.com/privacy
+    section: "7. Data Retention"
+    note: Retains data while account active, deletes on account deletion.
+    evidence:
+      - source: https://huddlekit.com/privacy
+        http_status: 200
+        fetched: "true"
+        quote: "We retain your personal information for as long as your account is active or as needed to provide the Service. When you delete your account, we will delete or anonymize your personal information within a reasonable period, unless retention is required by law or for legitimate business purposes such as resolving disputes."
+  data_subject_request:
+    url: https://huddlekit.com/privacy
+    section: "8. Your Rights"
+    note: Provides mechanisms for data subject rights.
+    evidence:
+      - source: https://huddlekit.com/privacy
+        http_status: 200
+        fetched: "true"
+        quote: "Access: Request a copy of the personal information we hold about you; Correction: Request correction of inaccurate or incomplete information; Deletion: Request deletion of your personal information, subject to legal obligations; Data portability: Request a copy of your data in a structured, commonly used format; Restriction: Request that we restrict the processing of your personal information; Objection: Object to our processing of your personal information."
+  subprocessors:
+    url: https://huddlekit.com/privacy
+    section: "4. How We Share Your Information"
+    note: Lists sub‑processors used.
+    evidence:
+      - source: https://huddlekit.com/privacy
+        http_status: 200
+        fetched: "true"
+        quote: "We rely on the following sub-processors to operate the Service. Each acts under a Data Processing Agreement and only processes data as necessary to provide services on our behalf: Supabase : database, authentication, and file storage. ... Stripe : subscription billing and payment processing. ... PostHog : product analytics ... Resend : transactional email delivery ... Vercel : hosting of this marketing website."
+  incident_notification:
+    url: https://huddlekit.com/privacy
+    section: "4. How We Share Your Information"
+    note: Mentions legal disclosures but no explicit breach notification policy.
+    evidence:
+      - source: https://huddlekit.com/privacy
+        http_status: 200
+        fetched: "true"
+        quote: "We may disclose your information if required by law, regulation, legal process, or governmental request."

@@ -1,0 +1,28 @@
+generated: '2026-09-28'
+method: searched
+generator: extract-docs-artifacts.py (local)
+source: https://huddlekit.com/integrations/api
+sources:
+- https://huddlekit.com/integrations/api
+- https://huddlekit.com/support/setting-up-webhooks
+description: Huddlekit provides four webhook events that are sent when a comment is created, its status changes, its text is edited, or its screenshot
+  becomes ready.
+events:
+- event: comment.created
+  description: Sent when a new comment is left in the workspace.
+- event: comment.status_changed
+  description: Sent when a comment's status changes.
+- event: comment.text_changed
+  description: Sent when a comment's text is edited.
+- event: comment.screenshot_ready
+  description: Sent when a comment's screenshot is saved (not for media projects).
+delivery:
+  signature: Each request includes an X-Huddlekit-Signature header containing a timestamp and an HMAC‑SHA256 signature (v1) of the timestamp,
+    a period, and the raw request body, keyed with the signing secret (whsec_...).
+  retries: If a delivery fails (non‑2xx, timeout, error, or redirect), Huddlekit retries up to six times over about eight and a half hours with
+    back‑off intervals of 1 min, 5 min, 30 min, 2 h, and 6 h. After the sixth failure the event is set aside and not sent again. The same X‑Huddlekit‑Event‑Id
+    is used on every retry.
+  content_type: application/json
+note: Endpoints that fail 20 consecutive attempts over more than 24 hours are auto‑disabled. A test event can be sent via the UI. All webhooks
+  are available on the Team plan.
+docs: https://huddlekit.com/integrations/api

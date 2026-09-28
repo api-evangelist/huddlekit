@@ -1,0 +1,66 @@
+generated: '2026-09-28'
+method: derived
+generator: derive-problem-types.py
+source:
+- openapi/_original/huddlekit-api-openapi.json
+format: custom
+envelope:
+  media_type: application/json
+  schema: Error
+coverage:
+  operations: 9
+  statuses_declared: 7
+problems:
+- status: 400
+  title: Bad Request
+  description: The request was invalid. `error` says which field and why.
+  operations: 5
+  media_types:
+  - application/json
+  schema: Error
+- status: 401
+  title: Unauthorized
+  description: No API key, a malformed `Authorization` header, or an invalid, revoked or expired key.
+  operations: 9
+  media_types:
+  - application/json
+  schema: Error
+- status: 403
+  title: Forbidden
+  description: The key lacks the scope this call needs (`{"error":"Forbidden","detail":"This key lacks the \"read\"
+    scope"}`), or the workspace has no acti
+  operations: 9
+  media_types:
+  - application/json
+  schema: Error
+- status: 404
+  title: Not Found
+  description: Not found, or it belongs to another workspace (the two cases are indistinguishable on purpose). An
+    id that isn't a valid UUID also answers 4
+  operations: 3
+  media_types:
+  - application/json
+  schema: Error
+- status: 429
+  title: Too Many Requests
+  description: 'Rate limit exceeded. Limits: 200 reads and 30 writes per minute per API key, counted per endpoint
+    group (`/me`, `/projects`, `/comments`, `/'
+  operations: 9
+  media_types:
+  - application/json
+  schema: Error
+- status: 500
+  title: Internal Server Error
+  description: The request could not be completed.
+  operations: 3
+  media_types:
+  - application/json
+  schema: Error
+- status: 503
+  title: Service Unavailable
+  description: A temporary failure, such as the API key, the workspace plan or the parent record could not be checked.
+    Safe to retry.
+  operations: 9
+  media_types:
+  - application/json
+  schema: Error

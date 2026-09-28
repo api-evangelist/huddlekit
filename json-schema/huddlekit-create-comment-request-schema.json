@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/huddlekit/main/json-schema/huddlekit-create-comment-request-schema.json",
+  "title": "CreateCommentRequest",
+  "description": "A new comment. Which location fields are allowed depends on `surface`: `path` for website; `url`, `page_title` and `path` for webapp; `page_number` and `video_timestamp` for document. Sending a location field that belongs to another surface is a 400 (except `path` on a document, which is ignored). A null or empty-string location field counts as not sent.",
+  "x-generated": "2026-09-28",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/_original/huddlekit-api-openapi.json#/components/schemas/CreateCommentRequest",
+  "type": "object",
+  "required": [
+    "parent_id",
+    "text"
+  ],
+  "properties": {
+    "parent_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id of the project, web app or document to comment on (from `GET /projects`). Must belong to the key's workspace."
+    },
+    "project_id": {
+      "type": "string",
+      "format": "uuid",
+      "deprecated": true,
+      "description": "Deprecated alias of `parent_id`, used only when `parent_id` is absent."
+    },
+    "surface": {
+      "$ref": "#/$defs/Surface",
+      "default": "website",
+      "description": "What `parent_id` refers to. Defaults to `website`."
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 10000,
+      "description": "Comment text. Must not be blank. At most 10,000 characters."
+    },
+    "status": {
+      "$ref": "#/$defs/CommentStatus",
+      "default": "open",
+      "description": "Initial status. Defaults to `open`."
+    },
+    "path": {
+      "type": "string",
+      "maxLength": 2048,
+      "description": "Website and webapp only. Page path the comment is about, such as `/pricing`. Sanitized before it is stored. Defaults to `/` for a website, and to the path of `url` (or `/`) for a web app. Ignored for documents."
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "maxLength": 2048,
+      "description": "Webapp only. Full http:// or https:// URL of the page on your site that the comment is about."
+    },
+    "page_title": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Webapp only. Title of the page. Trimmed; at most 500 characters."
+    },
+    "page_number": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Document only. Page number, 1 or more. Defaults to 1."
+    },
+    "video_timestamp": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Document only, and only when the document is a video. Position in seconds, 0 or more."
+    }
+  },
+  "$defs": {
+    "CommentStatus": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in-review",
+        "in-progress",
+        "resolved"
+      ],
+      "description": "Workflow status of a comment. Setting `resolved` also marks the comment resolved; any other value marks it unresolved."
+    },
+    "Surface": {
+      "type": "string",
+      "enum": [
+        "website",
+        "webapp",
+        "document"
+      ],
+      "description": "What a comment is attached to. `website`: a website project (the parent is a project). `webapp`: a web app that runs the Huddlekit SDK widget (the parent is a web app). `document`: an uploaded PDF, image or video (the parent is a document)."
+    }
+  }
+}
