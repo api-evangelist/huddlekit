@@ -82,21 +82,131 @@ common:
   url: https://www.postman.com/huddlekit/workspace
 apis:
 - name: Huddlekit API
-  description: Read and create feedback comments, change their status and subscribe to comment webhooks.
+  description: >-
+    Read and create feedback comments, change their status and subscribe to comment webhooks.
   humanURL: https://huddlekit.com/integrations/api
   baseURL: https://app.huddlekit.com/api/v1
   aid: huddlekit:huddlekit-api
-- aid: huddlekit:huddlekit-api-api
-  name: Huddlekit API API
-  description: 'The Huddlekit REST API reads a workspace''s projects, web apps, documents and comments, creates comments, changes a comment''s
-    status
-
-    and manages webhook subscriptions. It cannot edit a comment''s text or delete comments.'
-  humanURL: https://huddlekit.com/llms.txt
+- aid: huddlekit:huddlekit-account-api
+  name: Huddlekit Account API
+  description: The API key and its workspace.
+  humanURL: https://huddlekit.com/integrations/api
   baseURL: https://app.huddlekit.com/api/v1
+  tags:
+  - Account
   properties:
   - type: OpenAPI
-    url: openapi/_original/huddlekit-api-openapi.json
+    url: openapi/huddlekit-account-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/huddlekit-create-comment-request-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-webhook-subscription-created-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-create-webhook-subscription-request-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-api-key-info-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-list-comments-response-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-list-projects-response-schema.json
+- aid: huddlekit:huddlekit-comments-api
+  name: Huddlekit Comments API
+  description: Read, create and change the status of comments.
+  humanURL: https://huddlekit.com/integrations/api
+  baseURL: https://app.huddlekit.com/api/v1
+  tags:
+  - Comments
+  properties:
+  - type: OpenAPI
+    url: openapi/huddlekit-comments-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/huddlekit-create-comment-request-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-webhook-subscription-created-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-create-webhook-subscription-request-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-api-key-info-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-list-comments-response-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-list-projects-response-schema.json
+- aid: huddlekit:huddlekit-events-api
+  name: Huddlekit Events API
+  description: Sample event payloads.
+  humanURL: https://huddlekit.com/integrations/api
+  baseURL: https://app.huddlekit.com/api/v1
+  tags:
+  - Events
+  properties:
+  - type: OpenAPI
+    url: openapi/huddlekit-events-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/huddlekit-create-comment-request-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-webhook-subscription-created-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-create-webhook-subscription-request-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-api-key-info-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-list-comments-response-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-list-projects-response-schema.json
+- aid: huddlekit:huddlekit-projects-api
+  name: Huddlekit Projects API
+  description: Website projects, web apps and documents that comments are attached to.
+  humanURL: https://huddlekit.com/integrations/api
+  baseURL: https://app.huddlekit.com/api/v1
+  tags:
+  - Projects
+  properties:
+  - type: OpenAPI
+    url: openapi/huddlekit-projects-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/huddlekit-create-comment-request-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-webhook-subscription-created-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-create-webhook-subscription-request-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-api-key-info-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-list-comments-response-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-list-projects-response-schema.json
+- aid: huddlekit:huddlekit-webhook-events-api
+  name: Huddlekit Webhook events API
+  description: Requests Huddlekit sends to subscribed URLs.
+  humanURL: https://huddlekit.com/integrations/api
+  baseURL: https://app.huddlekit.com/api/v1
+  tags:
+  - Webhook events
+  properties:
+  - type: OpenAPI
+    url: openapi/huddlekit-webhook-events-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/huddlekit-create-comment-request-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-webhook-subscription-created-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-create-webhook-subscription-request-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-api-key-info-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-list-comments-response-schema.json
+  - type: JSONSchema
+    url: json-schema/huddlekit-list-projects-response-schema.json
+- aid: huddlekit:huddlekit-webhook-subscriptions-api
+  name: Huddlekit Webhook subscriptions API
+  description: Subscribe URLs to comment events (REST hooks).
+  humanURL: https://huddlekit.com/integrations/api
+  baseURL: https://app.huddlekit.com/api/v1
+  tags:
+  - Webhook subscriptions
+  properties:
+  - type: OpenAPI
+    url: openapi/huddlekit-webhook-subscriptions-api-openapi.yml
   - type: JSONSchema
     url: json-schema/huddlekit-create-comment-request-schema.json
   - type: JSONSchema

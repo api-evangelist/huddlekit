@@ -1,0 +1,519 @@
+openapi: 3.2.0
+info:
+  title: Huddlekit Webhook events API
+  version: 1.0.0
+  summary: Read and create feedback comments, change their status and subscribe to comment webhooks.
+  description: The Huddlekit REST API reads a workspace's projects, web apps, documents and comments, creates comments, changes a comment's status and manages webhook subscriptions.
+  termsOfService: https://huddlekit.com/terms
+  contact:
+    name: Huddlekit
+    email: hello@huddlekit.com
+    url: https://huddlekit.com
+servers:
+- url: https://app.huddlekit.com/api/v1
+  description: Production
+security:
+- apiKey: []
+tags:
+- name: Webhook events
+  description: Requests Huddlekit sends to subscribed URLs.
+paths: {}
+webhooks:
+  comment.created:
+    post:
+      operationId: onCommentCreated
+      tags:
+      - Webhook events
+      summary: A comment was created
+      description: 'Sent when a comment is added. Website and web app comments are held for at least 10 seconds first so the screenshot is usually ready and included; document comments are sent without the hold. Sent as a JSON POST to every active subscription (and every webhook set up in the Huddlekit app) that includes this event type, while the workspace is on the Team plan. Respond with any 2xx within 10 seconds. Any other status (redirects are not followed), an error or a timeout is a failure: the delivery is retried after 1 minute, 5 minutes, 30 minutes, 2 hours and 6 hours (6 attempts in all) and then set aside, and an endpoint that has failed 20 times in a row over more than 24 hours is switched off. Delivery is at-least-once; de-duplicate on `X-Huddlekit-Event-Id`.'
+      security: []
+      parameters:
+      - name: X-Huddlekit-Signature
+        in: header
+        required: true
+        description: '`t=<unix seconds>,v1=<hex>`. `v1` is the HMAC-SHA256 of `<t>.<raw request body>`, keyed with the subscription''s full signing secret (including the `whsec_` prefix). During a secret rotation the header carries a second `v1`; accept the request if any `v1` matches. Reject requests whose `t` is more than 5 minutes from your clock.'
+        schema:
+          type: string
+        example: t=1790496000,v1=5f2b1c0e9a7d3f6b8c4e2a1d0f9b7c5e3a1d8f6b4c2e0a9d7f5b3c1e8a6d4f2b
+      - name: X-Huddlekit-Event
+        in: header
+        required: true
+        description: The event type, the same as `event` in the body.
+        schema:
+          $ref: '#/components/schemas/EventType'
+      - name: X-Huddlekit-Event-Id
+        in: header
+        required: true
+        description: The event id, the same as `event_id` in the body. Unchanged across retries; use it to de-duplicate.
+        schema:
+          type: string
+      - name: User-Agent
+        in: header
+        required: true
+        description: Always `Huddlekit-Webhooks/1`.
+        schema:
+          type: string
+          const: Huddlekit-Webhooks/1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentCreatedEvent'
+      responses:
+        2XX:
+          description: Any 2xx acknowledges the delivery. The response body is ignored.
+  comment.status_changed:
+    post:
+      operationId: onCommentStatusChanged
+      tags:
+      - Webhook events
+      summary: A comment's status changed
+      description: 'Sent when a comment''s status changes. `changed.status` has the old and new values. Sent as a JSON POST to every active subscription (and every webhook set up in the Huddlekit app) that includes this event type, while the workspace is on the Team plan. Respond with any 2xx within 10 seconds. Any other status (redirects are not followed), an error or a timeout is a failure: the delivery is retried after 1 minute, 5 minutes, 30 minutes, 2 hours and 6 hours (6 attempts in all) and then set aside, and an endpoint that has failed 20 times in a row over more than 24 hours is switched off. Delivery is at-least-once; de-duplicate on `X-Huddlekit-Event-Id`.'
+      security: []
+      parameters:
+      - name: X-Huddlekit-Signature
+        in: header
+        required: true
+        description: '`t=<unix seconds>,v1=<hex>`. `v1` is the HMAC-SHA256 of `<t>.<raw request body>`, keyed with the subscription''s full signing secret (including the `whsec_` prefix). During a secret rotation the header carries a second `v1`; accept the request if any `v1` matches. Reject requests whose `t` is more than 5 minutes from your clock.'
+        schema:
+          type: string
+        example: t=1790496000,v1=5f2b1c0e9a7d3f6b8c4e2a1d0f9b7c5e3a1d8f6b4c2e0a9d7f5b3c1e8a6d4f2b
+      - name: X-Huddlekit-Event
+        in: header
+        required: true
+        description: The event type, the same as `event` in the body.
+        schema:
+          $ref: '#/components/schemas/EventType'
+      - name: X-Huddlekit-Event-Id
+        in: header
+        required: true
+        description: The event id, the same as `event_id` in the body. Unchanged across retries; use it to de-duplicate.
+        schema:
+          type: string
+      - name: User-Agent
+        in: header
+        required: true
+        description: Always `Huddlekit-Webhooks/1`.
+        schema:
+          type: string
+          const: Huddlekit-Webhooks/1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentStatusChangedEvent'
+      responses:
+        2XX:
+          description: Any 2xx acknowledges the delivery. The response body is ignored.
+  comment.text_changed:
+    post:
+      operationId: onCommentTextChanged
+      tags:
+      - Webhook events
+      summary: A comment's text was edited
+      description: 'Sent when a comment''s text is edited. `changed.text.new` has the new text; the previous text is never sent. Sent as a JSON POST to every active subscription (and every webhook set up in the Huddlekit app) that includes this event type, while the workspace is on the Team plan. Respond with any 2xx within 10 seconds. Any other status (redirects are not followed), an error or a timeout is a failure: the delivery is retried after 1 minute, 5 minutes, 30 minutes, 2 hours and 6 hours (6 attempts in all) and then set aside, and an endpoint that has failed 20 times in a row over more than 24 hours is switched off. Delivery is at-least-once; de-duplicate on `X-Huddlekit-Event-Id`.'
+      security: []
+      parameters:
+      - name: X-Huddlekit-Signature
+        in: header
+        required: true
+        description: '`t=<unix seconds>,v1=<hex>`. `v1` is the HMAC-SHA256 of `<t>.<raw request body>`, keyed with the subscription''s full signing secret (including the `whsec_` prefix). During a secret rotation the header carries a second `v1`; accept the request if any `v1` matches. Reject requests whose `t` is more than 5 minutes from your clock.'
+        schema:
+          type: string
+        example: t=1790496000,v1=5f2b1c0e9a7d3f6b8c4e2a1d0f9b7c5e3a1d8f6b4c2e0a9d7f5b3c1e8a6d4f2b
+      - name: X-Huddlekit-Event
+        in: header
+        required: true
+        description: The event type, the same as `event` in the body.
+        schema:
+          $ref: '#/components/schemas/EventType'
+      - name: X-Huddlekit-Event-Id
+        in: header
+        required: true
+        description: The event id, the same as `event_id` in the body. Unchanged across retries; use it to de-duplicate.
+        schema:
+          type: string
+      - name: User-Agent
+        in: header
+        required: true
+        description: Always `Huddlekit-Webhooks/1`.
+        schema:
+          type: string
+          const: Huddlekit-Webhooks/1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentTextChangedEvent'
+      responses:
+        2XX:
+          description: Any 2xx acknowledges the delivery. The response body is ignored.
+  comment.screenshot_ready:
+    post:
+      operationId: onCommentScreenshotReady
+      tags:
+      - Webhook events
+      summary: A comment's screenshot is ready
+      description: 'Sent the first time a website or web app comment gets a screenshot. Documents have no screenshots. Sent as a JSON POST to every active subscription (and every webhook set up in the Huddlekit app) that includes this event type, while the workspace is on the Team plan. Respond with any 2xx within 10 seconds. Any other status (redirects are not followed), an error or a timeout is a failure: the delivery is retried after 1 minute, 5 minutes, 30 minutes, 2 hours and 6 hours (6 attempts in all) and then set aside, and an endpoint that has failed 20 times in a row over more than 24 hours is switched off. Delivery is at-least-once; de-duplicate on `X-Huddlekit-Event-Id`.'
+      security: []
+      parameters:
+      - name: X-Huddlekit-Signature
+        in: header
+        required: true
+        description: '`t=<unix seconds>,v1=<hex>`. `v1` is the HMAC-SHA256 of `<t>.<raw request body>`, keyed with the subscription''s full signing secret (including the `whsec_` prefix). During a secret rotation the header carries a second `v1`; accept the request if any `v1` matches. Reject requests whose `t` is more than 5 minutes from your clock.'
+        schema:
+          type: string
+        example: t=1790496000,v1=5f2b1c0e9a7d3f6b8c4e2a1d0f9b7c5e3a1d8f6b4c2e0a9d7f5b3c1e8a6d4f2b
+      - name: X-Huddlekit-Event
+        in: header
+        required: true
+        description: The event type, the same as `event` in the body.
+        schema:
+          $ref: '#/components/schemas/EventType'
+      - name: X-Huddlekit-Event-Id
+        in: header
+        required: true
+        description: The event id, the same as `event_id` in the body. Unchanged across retries; use it to de-duplicate.
+        schema:
+          type: string
+      - name: User-Agent
+        in: header
+        required: true
+        description: Always `Huddlekit-Webhooks/1`.
+        schema:
+          type: string
+          const: Huddlekit-Webhooks/1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentScreenshotReadyEvent'
+      responses:
+        2XX:
+          description: Any 2xx acknowledges the delivery. The response body is ignored.
+components:
+  schemas:
+    WebhookAuthor:
+      type: object
+      description: Who wrote the comment.
+      required:
+      - name
+      - kind
+      properties:
+        name:
+          type: string
+          description: Display name, or `Someone` when the name is unknown. Comments created through this API show as `API`.
+        kind:
+          type: string
+          enum:
+          - user
+          - guest
+          description: '`user` for a Huddlekit member, `guest` for anyone else.'
+    Change:
+      type: object
+      description: Before and after values of a changed field.
+      required:
+      - old
+      - new
+      properties:
+        old:
+          description: Previous value. Always null for text edits (the pre-edit text is never sent) and for screenshots.
+        new:
+          description: New value.
+    WebsitePage:
+      type: object
+      title: Website page
+      description: Location of a website comment.
+      additionalProperties: false
+      required:
+      - path
+      properties:
+        path:
+          type:
+          - string
+          - 'null'
+          description: Page path, relative to the project's URL.
+    CommentCreatedEvent:
+      description: Payload of a comment.created delivery. `changed` is null.
+      allOf:
+      - $ref: '#/components/schemas/WebhookPayload'
+      - type: object
+        properties:
+          event:
+            const: comment.created
+          changed:
+            type: 'null'
+    CommentTextChangedEvent:
+      description: Payload of a comment.text_changed delivery.
+      allOf:
+      - $ref: '#/components/schemas/WebhookPayload'
+      - type: object
+        properties:
+          event:
+            const: comment.text_changed
+          changed:
+            type: object
+            required:
+            - text
+            properties:
+              text:
+                type: object
+                description: The new text. The previous text is never sent.
+                required:
+                - old
+                - new
+                properties:
+                  old:
+                    type: 'null'
+                    description: Always null.
+                  new:
+                    type: string
+                    description: New comment text.
+    WebhookComment:
+      type: object
+      description: The comment as it is when the event is sent.
+      required:
+      - id
+      - number
+      - title
+      - text
+      - status
+      - page
+      - permalink
+      - screenshot
+      - browser_info
+      - author
+      - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Comment id.
+        number:
+          type:
+          - integer
+          - 'null'
+          description: Sequential number of the comment within its parent.
+        title:
+          type: string
+          description: 'One-line title made from the text: its first line, shortened to about 80 characters, ending in … when anything was cut.'
+        text:
+          type: string
+          description: Full comment text.
+        status:
+          type:
+          - string
+          - 'null'
+          enum:
+          - open
+          - in-review
+          - in-progress
+          - resolved
+          - null
+          description: 'Workflow status: `open`, `in-review`, `in-progress` or `resolved`.'
+        page:
+          description: Where the comment is. Shape depends on `surface`.
+          oneOf:
+          - $ref: '#/components/schemas/WebsitePage'
+          - $ref: '#/components/schemas/WebappPage'
+          - $ref: '#/components/schemas/DocumentPage'
+        permalink:
+          type: string
+          format: uri
+          description: Link back to the comment. For website and document comments it opens the comment in Huddlekit; for web app comments it opens your page with the Huddlekit widget.
+        screenshot:
+          type:
+          - string
+          - 'null'
+          description: Screenshot of the page, or null. Always null for documents.
+        browser_info:
+          description: Browser and device details recorded with the comment (JSON), or null. Always null for documents.
+        author:
+          description: Who wrote the comment, or null when unknown.
+          oneOf:
+          - $ref: '#/components/schemas/WebhookAuthor'
+          - type: 'null'
+        created_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: When the comment was created.
+    WebhookPayload:
+      type: object
+      description: Body of every webhook delivery, and of each item returned by `GET /events/recent`.
+      required:
+      - event
+      - event_id
+      - occurred_at
+      - workspace_id
+      - surface
+      - parent_id
+      - source
+      - comment
+      - changed
+      properties:
+        event:
+          $ref: '#/components/schemas/EventType'
+        event_id:
+          type: string
+          description: Unique event id; the same on every retry, so use it to de-duplicate. Samples from `GET /events/recent` use `sample:<comment id>`.
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the change happened.
+        workspace_id:
+          type: string
+          format: uuid
+          description: Workspace the comment belongs to.
+        surface:
+          $ref: '#/components/schemas/Surface'
+        parent_id:
+          type: string
+          description: Id of the project, web app or document the comment is on.
+        source:
+          type:
+          - string
+          - 'null'
+          description: 'Who made the change: `app` (a change made in Huddlekit, or synced back from Slack, Linear, ClickUp or Notion), `mcp` (an AI agent via Huddlekit''s MCP server) or `connector:<api_key_id>` (a call to this API with that key). Null only on events from before 2026-09-06.'
+        comment:
+          description: The comment. Typed as nullable, but events whose comment no longer exists are not sent.
+          oneOf:
+          - $ref: '#/components/schemas/WebhookComment'
+          - type: 'null'
+        changed:
+          type:
+          - object
+          - 'null'
+          description: 'What changed, keyed by field: `status` for comment.status_changed, `text` for comment.text_changed (with `old` always null), `screenshot` for comment.screenshot_ready (with `old` null). Null for comment.created.'
+          additionalProperties:
+            $ref: '#/components/schemas/Change'
+    Surface:
+      type: string
+      enum:
+      - website
+      - webapp
+      - document
+      description: 'What a comment is attached to. `website`: a website project (the parent is a project). `webapp`: a web app that runs the Huddlekit SDK widget (the parent is a web app). `document`: an uploaded PDF, image or video (the parent is a document).'
+    EventType:
+      type: string
+      enum:
+      - comment.created
+      - comment.status_changed
+      - comment.text_changed
+      - comment.screenshot_ready
+      description: '`comment.created`: a comment was added. `comment.status_changed`: its status changed. `comment.text_changed`: its text was edited. `comment.screenshot_ready`: its screenshot finished capturing (website and webapp comments only). The **Send test event** button in the Huddlekit app also sends `ping`, with a made-up comment and no `source` or `permalink`; answer it with any 2xx and don''t treat it as a real event.'
+    CommentStatusChangedEvent:
+      description: Payload of a comment.status_changed delivery.
+      allOf:
+      - $ref: '#/components/schemas/WebhookPayload'
+      - type: object
+        properties:
+          event:
+            const: comment.status_changed
+          changed:
+            type: object
+            required:
+            - status
+            properties:
+              status:
+                type: object
+                description: Previous and new status.
+                required:
+                - old
+                - new
+                properties:
+                  old:
+                    type:
+                    - string
+                    - 'null'
+                    description: Previous status.
+                  new:
+                    type:
+                    - string
+                    - 'null'
+                    description: New status.
+    CommentScreenshotReadyEvent:
+      description: Payload of a comment.screenshot_ready delivery. Sent the first time a website or web app comment gets a screenshot.
+      allOf:
+      - $ref: '#/components/schemas/WebhookPayload'
+      - type: object
+        properties:
+          event:
+            const: comment.screenshot_ready
+          changed:
+            type: object
+            required:
+            - screenshot
+            properties:
+              screenshot:
+                type: object
+                description: The screenshot that was just captured.
+                required:
+                - old
+                - new
+                properties:
+                  old:
+                    type: 'null'
+                    description: Always null.
+                  new:
+                    type: string
+                    description: The new screenshot.
+          surface:
+            enum:
+            - website
+            - webapp
+    WebappPage:
+      type: object
+      title: Web app page
+      description: Location of a web app comment.
+      additionalProperties: false
+      required:
+      - url
+      - path
+      - title
+      properties:
+        url:
+          type:
+          - string
+          - 'null'
+          description: Full URL of the page.
+        path:
+          type:
+          - string
+          - 'null'
+          description: Page path.
+        title:
+          type:
+          - string
+          - 'null'
+          description: Page title.
+    DocumentPage:
+      type: object
+      title: Document page
+      description: Location of a document comment.
+      additionalProperties: false
+      required:
+      - page_number
+      properties:
+        page_number:
+          type:
+          - integer
+          - 'null'
+          description: Page number (1-based).
+        video_timestamp:
+          type: number
+          description: Position in seconds. Present only for comments on a video.
+  securitySchemes:
+    apiKey:
+      type: http
+      scheme: bearer
+      bearerFormat: hk_live_ + 64 hex characters
+      description: 'Workspace API key, created in the Huddlekit app and shown once. Send it as `Authorization: Bearer hk_live_<64 lowercase hex characters>`. The key identifies the workspace; there is no user session. GET calls need the `read` scope; POST, PATCH and DELETE calls need `write`.'
+externalDocs:
+  description: REST API guide
+  url: https://huddlekit.com/support/using-the-rest-api

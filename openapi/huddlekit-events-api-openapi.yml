@@ -1,0 +1,394 @@
+openapi: 3.2.0
+info:
+  title: Huddlekit Events API
+  version: 1.0.0
+  summary: Read and create feedback comments, change their status and subscribe to comment webhooks.
+  description: The Huddlekit REST API reads a workspace's projects, web apps, documents and comments, creates comments, changes a comment's status and manages webhook subscriptions.
+  termsOfService: https://huddlekit.com/terms
+  contact:
+    name: Huddlekit
+    email: hello@huddlekit.com
+    url: https://huddlekit.com
+servers:
+- url: https://app.huddlekit.com/api/v1
+  description: Production
+security:
+- apiKey: []
+tags:
+- name: Events
+  description: Sample event payloads.
+paths:
+  /events/recent:
+    get:
+      operationId: listRecentEvents
+      tags:
+      - Events
+      summary: Get sample webhook payloads from recent comments
+      description: 'Builds sample webhook payloads from the workspace''s newest comments, in exactly the shape a live delivery has, so you can map fields before any event fires. These are not replayed deliveries: `event_id` is `sample:`, `occurred_at` is the comment''s creation time, `source` is `app`, and `changed` is only filled (with a representative status change) when `event` is `comment.status_changed`. Requires the `read` scope.'
+      parameters:
+      - name: event
+        in: query
+        required: false
+        description: Event type to render the samples as. Defaults to `comment.created`.
+        schema:
+          $ref: '#/components/schemas/EventType'
+          default: comment.created
+      - name: surface
+        in: query
+        required: false
+        description: Only use comments from this surface. Omit to use all surfaces.
+        schema:
+          $ref: '#/components/schemas/Surface'
+      - name: limit
+        in: query
+        required: false
+        description: Number of samples, 1 to 25. Defaults to 3. Out-of-range values are clamped.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 25
+          default: 3
+      responses:
+        '200':
+          description: Sample payloads.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRecentEventsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+components:
+  schemas:
+    WebhookAuthor:
+      type: object
+      description: Who wrote the comment.
+      required:
+      - name
+      - kind
+      properties:
+        name:
+          type: string
+          description: Display name, or `Someone` when the name is unknown. Comments created through this API show as `API`.
+        kind:
+          type: string
+          enum:
+          - user
+          - guest
+          description: '`user` for a Huddlekit member, `guest` for anyone else.'
+    Change:
+      type: object
+      description: Before and after values of a changed field.
+      required:
+      - old
+      - new
+      properties:
+        old:
+          description: Previous value. Always null for text edits (the pre-edit text is never sent) and for screenshots.
+        new:
+          description: New value.
+    WebsitePage:
+      type: object
+      title: Website page
+      description: Location of a website comment.
+      additionalProperties: false
+      required:
+      - path
+      properties:
+        path:
+          type:
+          - string
+          - 'null'
+          description: Page path, relative to the project's URL.
+    Error:
+      type: object
+      description: Error body returned by every failed call.
+      required:
+      - error
+      properties:
+        error:
+          type: string
+          description: Short, human-readable error message.
+        detail:
+          type: string
+          description: Extra explanation, when there is one.
+      example:
+        error: Unauthorized
+        detail: Invalid or revoked API key
+    WebhookComment:
+      type: object
+      description: The comment as it is when the event is sent.
+      required:
+      - id
+      - number
+      - title
+      - text
+      - status
+      - page
+      - permalink
+      - screenshot
+      - browser_info
+      - author
+      - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Comment id.
+        number:
+          type:
+          - integer
+          - 'null'
+          description: Sequential number of the comment within its parent.
+        title:
+          type: string
+          description: 'One-line title made from the text: its first line, shortened to about 80 characters, ending in … when anything was cut.'
+        text:
+          type: string
+          description: Full comment text.
+        status:
+          type:
+          - string
+          - 'null'
+          enum:
+          - open
+          - in-review
+          - in-progress
+          - resolved
+          - null
+          description: 'Workflow status: `open`, `in-review`, `in-progress` or `resolved`.'
+        page:
+          description: Where the comment is. Shape depends on `surface`.
+          oneOf:
+          - $ref: '#/components/schemas/WebsitePage'
+          - $ref: '#/components/schemas/WebappPage'
+          - $ref: '#/components/schemas/DocumentPage'
+        permalink:
+          type: string
+          format: uri
+          description: Link back to the comment. For website and document comments it opens the comment in Huddlekit; for web app comments it opens your page with the Huddlekit widget.
+        screenshot:
+          type:
+          - string
+          - 'null'
+          description: Screenshot of the page, or null. Always null for documents.
+        browser_info:
+          description: Browser and device details recorded with the comment (JSON), or null. Always null for documents.
+        author:
+          description: Who wrote the comment, or null when unknown.
+          oneOf:
+          - $ref: '#/components/schemas/WebhookAuthor'
+          - type: 'null'
+        created_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: When the comment was created.
+    WebhookPayload:
+      type: object
+      description: Body of every webhook delivery, and of each item returned by `GET /events/recent`.
+      required:
+      - event
+      - event_id
+      - occurred_at
+      - workspace_id
+      - surface
+      - parent_id
+      - source
+      - comment
+      - changed
+      properties:
+        event:
+          $ref: '#/components/schemas/EventType'
+        event_id:
+          type: string
+          description: Unique event id; the same on every retry, so use it to de-duplicate. Samples from `GET /events/recent` use `sample:<comment id>`.
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the change happened.
+        workspace_id:
+          type: string
+          format: uuid
+          description: Workspace the comment belongs to.
+        surface:
+          $ref: '#/components/schemas/Surface'
+        parent_id:
+          type: string
+          description: Id of the project, web app or document the comment is on.
+        source:
+          type:
+          - string
+          - 'null'
+          description: 'Who made the change: `app` (a change made in Huddlekit, or synced back from Slack, Linear, ClickUp or Notion), `mcp` (an AI agent via Huddlekit''s MCP server) or `connector:<api_key_id>` (a call to this API with that key). Null only on events from before 2026-09-06.'
+        comment:
+          description: The comment. Typed as nullable, but events whose comment no longer exists are not sent.
+          oneOf:
+          - $ref: '#/components/schemas/WebhookComment'
+          - type: 'null'
+        changed:
+          type:
+          - object
+          - 'null'
+          description: 'What changed, keyed by field: `status` for comment.status_changed, `text` for comment.text_changed (with `old` always null), `screenshot` for comment.screenshot_ready (with `old` null). Null for comment.created.'
+          additionalProperties:
+            $ref: '#/components/schemas/Change'
+    ListRecentEventsResponse:
+      type: object
+      required:
+      - events
+      - sample
+      properties:
+        events:
+          type: array
+          description: Sample payloads built from the newest comments, newest first.
+          items:
+            $ref: '#/components/schemas/WebhookPayload'
+        sample:
+          type: boolean
+          const: true
+          description: 'Always true: these are samples, not replayed deliveries.'
+    Surface:
+      type: string
+      enum:
+      - website
+      - webapp
+      - document
+      description: 'What a comment is attached to. `website`: a website project (the parent is a project). `webapp`: a web app that runs the Huddlekit SDK widget (the parent is a web app). `document`: an uploaded PDF, image or video (the parent is a document).'
+    PlanRequiredError:
+      type: object
+      description: Returned with 403 when the key's workspace is not on a plan that includes API access.
+      required:
+      - error
+      - requiredPlans
+      properties:
+        error:
+          type: string
+          description: Human-readable message naming the required plan.
+        requiredPlans:
+          type: array
+          description: Plan ids that include API access.
+          items:
+            type: string
+      example:
+        error: This feature requires the Team plan.
+        requiredPlans:
+        - team
+    EventType:
+      type: string
+      enum:
+      - comment.created
+      - comment.status_changed
+      - comment.text_changed
+      - comment.screenshot_ready
+      description: '`comment.created`: a comment was added. `comment.status_changed`: its status changed. `comment.text_changed`: its text was edited. `comment.screenshot_ready`: its screenshot finished capturing (website and webapp comments only). The **Send test event** button in the Huddlekit app also sends `ping`, with a made-up comment and no `source` or `permalink`; answer it with any 2xx and don''t treat it as a real event.'
+    WebappPage:
+      type: object
+      title: Web app page
+      description: Location of a web app comment.
+      additionalProperties: false
+      required:
+      - url
+      - path
+      - title
+      properties:
+        url:
+          type:
+          - string
+          - 'null'
+          description: Full URL of the page.
+        path:
+          type:
+          - string
+          - 'null'
+          description: Page path.
+        title:
+          type:
+          - string
+          - 'null'
+          description: Page title.
+    DocumentPage:
+      type: object
+      title: Document page
+      description: Location of a document comment.
+      additionalProperties: false
+      required:
+      - page_number
+      properties:
+        page_number:
+          type:
+          - integer
+          - 'null'
+          description: Page number (1-based).
+        video_timestamp:
+          type: number
+          description: Position in seconds. Present only for comments on a video.
+  responses:
+    BadRequest:
+      description: The request was invalid. `error` says which field and why.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: parent_id is required
+    Unauthorized:
+      description: No API key, a malformed `Authorization` header, or an invalid, revoked or expired key.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Unauthorized
+            detail: 'Send your key as: Authorization: Bearer hk_live_…'
+    TooManyRequests:
+      description: 'Rate limit exceeded. Limits: 200 reads and 30 writes per minute per API key, counted per endpoint group (`/me`, `/projects`, `/comments`, `/comments/{id}`, `/hooks`, `/events/recent`) and separately for reads and writes; `DELETE /hooks/{id}` counts toward the `/hooks` writes. Refused calls count too. Wait the number of seconds in `Retry-After`, then retry.'
+      headers:
+        Retry-After:
+          description: Whole seconds until the limit resets (at least 1).
+          schema:
+            type: integer
+            minimum: 1
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Too many requests
+    Forbidden:
+      description: The key lacks the scope this call needs (`{"error":"Forbidden","detail":"This key lacks the \"read\" scope"}`), or the workspace has no active Team subscription (body includes `requiredPlans`).
+      content:
+        application/json:
+          schema:
+            anyOf:
+            - $ref: '#/components/schemas/PlanRequiredError'
+            - $ref: '#/components/schemas/Error'
+          example:
+            error: This feature requires the Team plan.
+            requiredPlans:
+            - team
+    ServiceUnavailable:
+      description: A temporary failure, such as the API key, the workspace plan or the parent record could not be checked. Safe to retry.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Could not verify the workspace plan
+  securitySchemes:
+    apiKey:
+      type: http
+      scheme: bearer
+      bearerFormat: hk_live_ + 64 hex characters
+      description: 'Workspace API key, created in the Huddlekit app and shown once. Send it as `Authorization: Bearer hk_live_<64 lowercase hex characters>`. The key identifies the workspace; there is no user session. GET calls need the `read` scope; POST, PATCH and DELETE calls need `write`.'
+externalDocs:
+  description: REST API guide
+  url: https://huddlekit.com/support/using-the-rest-api

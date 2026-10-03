@@ -1,0 +1,173 @@
+openapi: 3.2.0
+info:
+  title: Huddlekit Account API
+  version: 1.0.0
+  summary: Read and create feedback comments, change their status and subscribe to comment webhooks.
+  description: The Huddlekit REST API reads a workspace's projects, web apps, documents and comments, creates comments, changes a comment's status and manages webhook subscriptions.
+  termsOfService: https://huddlekit.com/terms
+  contact:
+    name: Huddlekit
+    email: hello@huddlekit.com
+    url: https://huddlekit.com
+servers:
+- url: https://app.huddlekit.com/api/v1
+  description: Production
+security:
+- apiKey: []
+tags:
+- name: Account
+  description: The API key and its workspace.
+paths:
+  /me:
+    get:
+      operationId: getCurrentApiKey
+      tags:
+      - Account
+      summary: Get the current API key's workspace and scopes
+      description: Returns the workspace the API key belongs to, the key's id and scopes, and the `source` value that events caused by this key carry. Use it to test that a key works. Requires the `read` scope.
+      responses:
+        '200':
+          description: The key's workspace and scopes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyInfo'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+components:
+  responses:
+    Unauthorized:
+      description: No API key, a malformed `Authorization` header, or an invalid, revoked or expired key.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Unauthorized
+            detail: 'Send your key as: Authorization: Bearer hk_live_…'
+    TooManyRequests:
+      description: 'Rate limit exceeded. Limits: 200 reads and 30 writes per minute per API key, counted per endpoint group (`/me`, `/projects`, `/comments`, `/comments/{id}`, `/hooks`, `/events/recent`) and separately for reads and writes; `DELETE /hooks/{id}` counts toward the `/hooks` writes. Refused calls count too. Wait the number of seconds in `Retry-After`, then retry.'
+      headers:
+        Retry-After:
+          description: Whole seconds until the limit resets (at least 1).
+          schema:
+            type: integer
+            minimum: 1
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Too many requests
+    Forbidden:
+      description: The key lacks the scope this call needs (`{"error":"Forbidden","detail":"This key lacks the \"read\" scope"}`), or the workspace has no active Team subscription (body includes `requiredPlans`).
+      content:
+        application/json:
+          schema:
+            anyOf:
+            - $ref: '#/components/schemas/PlanRequiredError'
+            - $ref: '#/components/schemas/Error'
+          example:
+            error: This feature requires the Team plan.
+            requiredPlans:
+            - team
+    ServiceUnavailable:
+      description: A temporary failure, such as the API key, the workspace plan or the parent record could not be checked. Safe to retry.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Could not verify the workspace plan
+  schemas:
+    Error:
+      type: object
+      description: Error body returned by every failed call.
+      required:
+      - error
+      properties:
+        error:
+          type: string
+          description: Short, human-readable error message.
+        detail:
+          type: string
+          description: Extra explanation, when there is one.
+      example:
+        error: Unauthorized
+        detail: Invalid or revoked API key
+    ApiKeyInfo:
+      type: object
+      description: The workspace and permissions of the API key that made the request.
+      required:
+      - workspace_id
+      - workspace_name
+      - key_id
+      - scopes
+      - source
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          description: Id of the workspace the key belongs to.
+        workspace_name:
+          type:
+          - string
+          - 'null'
+          description: Name of the workspace, or null if it could not be read.
+        key_id:
+          type: string
+          format: uuid
+          description: Id of this API key (not the secret key itself).
+        scopes:
+          type: array
+          description: Scopes granted to this key. `read` allows GET calls; `write` allows POST, PATCH and DELETE calls.
+          items:
+            type: string
+            enum:
+            - read
+            - write
+        source:
+          type: string
+          description: The `source` value that events caused by this key carry, `connector:<key_id>`. A consumer that both reads and writes comments should ignore events whose `source` equals this value, to avoid loops.
+      example:
+        workspace_id: 9a4e2b7c-1d5f-4a8e-b3c6-7e0f2d9a1b58
+        workspace_name: Acme Studio
+        key_id: c2a8e4f1-7b3d-4e9a-b6c5-1f0d8e2a7b93
+        scopes:
+        - read
+        - write
+        source: connector:c2a8e4f1-7b3d-4e9a-b6c5-1f0d8e2a7b93
+    PlanRequiredError:
+      type: object
+      description: Returned with 403 when the key's workspace is not on a plan that includes API access.
+      required:
+      - error
+      - requiredPlans
+      properties:
+        error:
+          type: string
+          description: Human-readable message naming the required plan.
+        requiredPlans:
+          type: array
+          description: Plan ids that include API access.
+          items:
+            type: string
+      example:
+        error: This feature requires the Team plan.
+        requiredPlans:
+        - team
+  securitySchemes:
+    apiKey:
+      type: http
+      scheme: bearer
+      bearerFormat: hk_live_ + 64 hex characters
+      description: 'Workspace API key, created in the Huddlekit app and shown once. Send it as `Authorization: Bearer hk_live_<64 lowercase hex characters>`. The key identifies the workspace; there is no user session. GET calls need the `read` scope; POST, PATCH and DELETE calls need `write`.'
+externalDocs:
+  description: REST API guide
+  url: https://huddlekit.com/support/using-the-rest-api

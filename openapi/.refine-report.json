@@ -1,0 +1,23 @@
+{
+  "provider": "huddlekit",
+  "sources": [
+    "_original/huddlekit-api-openapi.json"
+  ],
+  "outputs": [
+    "huddlekit-account-api-openapi.yml",
+    "huddlekit-comments-api-openapi.yml",
+    "huddlekit-events-api-openapi.yml",
+    "huddlekit-projects-api-openapi.yml",
+    "huddlekit-webhook-events-api-openapi.yml",
+    "huddlekit-webhook-subscriptions-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "huddlekit-api-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "apis.yml register: written (+6 apis, 7 total)"
+  ],
+  "skipped": []
+}
