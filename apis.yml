@@ -24,6 +24,9 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: CapabilityMap
+  url: capabilities/huddlekit-capability-edges.yml
+  name: Huddlekit Business Capability Map
 - type: Spectral
   url: rules/huddlekit-rules.yml
 - type: JSONLD
@@ -137,6 +140,8 @@ apis:
   humanURL: https://huddlekit.com/integrations/api
   baseURL: https://app.huddlekit.com/api/v1
   tags:
+  - Event
+  tags_raw:
   - Events
   properties:
   - type: OpenAPI
@@ -159,6 +164,8 @@ apis:
   humanURL: https://huddlekit.com/integrations/api
   baseURL: https://app.huddlekit.com/api/v1
   tags:
+  - Project
+  tags_raw:
   - Projects
   properties:
   - type: OpenAPI
@@ -181,6 +188,8 @@ apis:
   humanURL: https://huddlekit.com/integrations/api
   baseURL: https://app.huddlekit.com/api/v1
   tags:
+  - Webhook Events
+  tags_raw:
   - Webhook events
   properties:
   - type: OpenAPI
@@ -203,6 +212,8 @@ apis:
   humanURL: https://huddlekit.com/integrations/api
   baseURL: https://app.huddlekit.com/api/v1
   tags:
+  - Webhook Subscriptions
+  tags_raw:
   - Webhook subscriptions
   properties:
   - type: OpenAPI
