@@ -197,33 +197,6 @@ webhooks:
           description: Any 2xx acknowledges the delivery. The response body is ignored.
 components:
   schemas:
-    WebhookAuthor:
-      type: object
-      description: Who wrote the comment.
-      required:
-      - name
-      - kind
-      properties:
-        name:
-          type: string
-          description: Display name, or `Someone` when the name is unknown. Comments created through this API show as `API`.
-        kind:
-          type: string
-          enum:
-          - user
-          - guest
-          description: '`user` for a Huddlekit member, `guest` for anyone else.'
-    Change:
-      type: object
-      description: Before and after values of a changed field.
-      required:
-      - old
-      - new
-      properties:
-        old:
-          description: Previous value. Always null for text edits (the pre-edit text is never sent) and for screenshots.
-        new:
-          description: New value.
     WebsitePage:
       type: object
       title: Website page
@@ -237,6 +210,61 @@ components:
           - string
           - 'null'
           description: Page path, relative to the project's URL.
+    WebappPage:
+      type: object
+      title: Web app page
+      description: Location of a web app comment.
+      additionalProperties: false
+      required:
+      - url
+      - path
+      - title
+      properties:
+        url:
+          type:
+          - string
+          - 'null'
+          description: Full URL of the page.
+        path:
+          type:
+          - string
+          - 'null'
+          description: Page path.
+        title:
+          type:
+          - string
+          - 'null'
+          description: Page title.
+    CommentStatusChangedEvent:
+      description: Payload of a comment.status_changed delivery.
+      allOf:
+      - $ref: '#/components/schemas/WebhookPayload'
+      - type: object
+        properties:
+          event:
+            const: comment.status_changed
+          changed:
+            type: object
+            required:
+            - status
+            properties:
+              status:
+                type: object
+                description: Previous and new status.
+                required:
+                - old
+                - new
+                properties:
+                  old:
+                    type:
+                    - string
+                    - 'null'
+                    description: Previous status.
+                  new:
+                    type:
+                    - string
+                    - 'null'
+                    description: New status.
     CommentCreatedEvent:
       description: Payload of a comment.created delivery. `changed` is null.
       allOf:
@@ -247,32 +275,48 @@ components:
             const: comment.created
           changed:
             type: 'null'
-    CommentTextChangedEvent:
-      description: Payload of a comment.text_changed delivery.
-      allOf:
-      - $ref: '#/components/schemas/WebhookPayload'
-      - type: object
-        properties:
-          event:
-            const: comment.text_changed
-          changed:
-            type: object
-            required:
-            - text
-            properties:
-              text:
-                type: object
-                description: The new text. The previous text is never sent.
-                required:
-                - old
-                - new
-                properties:
-                  old:
-                    type: 'null'
-                    description: Always null.
-                  new:
-                    type: string
-                    description: New comment text.
+    Surface:
+      type: string
+      enum:
+      - website
+      - webapp
+      - document
+      description: 'What a comment is attached to. `website`: a website project (the parent is a project). `webapp`: a web app that runs the Huddlekit SDK widget (the parent is a web app). `document`: an uploaded PDF, image or video (the parent is a document).'
+    EventType:
+      type: string
+      enum:
+      - comment.created
+      - comment.status_changed
+      - comment.text_changed
+      - comment.screenshot_ready
+      description: '`comment.created`: a comment was added. `comment.status_changed`: its status changed. `comment.text_changed`: its text was edited. `comment.screenshot_ready`: its screenshot finished capturing (website and webapp comments only). The **Send test event** button in the Huddlekit app also sends `ping`, with a made-up comment and no `source` or `permalink`; answer it with any 2xx and don''t treat it as a real event.'
+    DocumentPage:
+      type: object
+      title: Document page
+      description: Location of a document comment.
+      additionalProperties: false
+      required:
+      - page_number
+      properties:
+        page_number:
+          type:
+          - integer
+          - 'null'
+          description: Page number (1-based).
+        video_timestamp:
+          type: number
+          description: Position in seconds. Present only for comments on a video.
+    Change:
+      type: object
+      description: Before and after values of a changed field.
+      required:
+      - old
+      - new
+      properties:
+        old:
+          description: Previous value. Always null for text edits (the pre-edit text is never sent) and for screenshots.
+        new:
+          description: New value.
     WebhookComment:
       type: object
       description: The comment as it is when the event is sent.
@@ -392,51 +436,22 @@ components:
           description: 'What changed, keyed by field: `status` for comment.status_changed, `text` for comment.text_changed (with `old` always null), `screenshot` for comment.screenshot_ready (with `old` null). Null for comment.created.'
           additionalProperties:
             $ref: '#/components/schemas/Change'
-    Surface:
-      type: string
-      enum:
-      - website
-      - webapp
-      - document
-      description: 'What a comment is attached to. `website`: a website project (the parent is a project). `webapp`: a web app that runs the Huddlekit SDK widget (the parent is a web app). `document`: an uploaded PDF, image or video (the parent is a document).'
-    EventType:
-      type: string
-      enum:
-      - comment.created
-      - comment.status_changed
-      - comment.text_changed
-      - comment.screenshot_ready
-      description: '`comment.created`: a comment was added. `comment.status_changed`: its status changed. `comment.text_changed`: its text was edited. `comment.screenshot_ready`: its screenshot finished capturing (website and webapp comments only). The **Send test event** button in the Huddlekit app also sends `ping`, with a made-up comment and no `source` or `permalink`; answer it with any 2xx and don''t treat it as a real event.'
-    CommentStatusChangedEvent:
-      description: Payload of a comment.status_changed delivery.
-      allOf:
-      - $ref: '#/components/schemas/WebhookPayload'
-      - type: object
-        properties:
-          event:
-            const: comment.status_changed
-          changed:
-            type: object
-            required:
-            - status
-            properties:
-              status:
-                type: object
-                description: Previous and new status.
-                required:
-                - old
-                - new
-                properties:
-                  old:
-                    type:
-                    - string
-                    - 'null'
-                    description: Previous status.
-                  new:
-                    type:
-                    - string
-                    - 'null'
-                    description: New status.
+    WebhookAuthor:
+      type: object
+      description: Who wrote the comment.
+      required:
+      - name
+      - kind
+      properties:
+        name:
+          type: string
+          description: Display name, or `Someone` when the name is unknown. Comments created through this API show as `API`.
+        kind:
+          type: string
+          enum:
+          - user
+          - guest
+          description: '`user` for a Huddlekit member, `guest` for anyone else.'
     CommentScreenshotReadyEvent:
       description: Payload of a comment.screenshot_ready delivery. Sent the first time a website or web app comment gets a screenshot.
       allOf:
@@ -467,47 +482,32 @@ components:
             enum:
             - website
             - webapp
-    WebappPage:
-      type: object
-      title: Web app page
-      description: Location of a web app comment.
-      additionalProperties: false
-      required:
-      - url
-      - path
-      - title
-      properties:
-        url:
-          type:
-          - string
-          - 'null'
-          description: Full URL of the page.
-        path:
-          type:
-          - string
-          - 'null'
-          description: Page path.
-        title:
-          type:
-          - string
-          - 'null'
-          description: Page title.
-    DocumentPage:
-      type: object
-      title: Document page
-      description: Location of a document comment.
-      additionalProperties: false
-      required:
-      - page_number
-      properties:
-        page_number:
-          type:
-          - integer
-          - 'null'
-          description: Page number (1-based).
-        video_timestamp:
-          type: number
-          description: Position in seconds. Present only for comments on a video.
+    CommentTextChangedEvent:
+      description: Payload of a comment.text_changed delivery.
+      allOf:
+      - $ref: '#/components/schemas/WebhookPayload'
+      - type: object
+        properties:
+          event:
+            const: comment.text_changed
+          changed:
+            type: object
+            required:
+            - text
+            properties:
+              text:
+                type: object
+                description: The new text. The previous text is never sent.
+                required:
+                - old
+                - new
+                properties:
+                  old:
+                    type: 'null'
+                    description: Always null.
+                  new:
+                    type: string
+                    description: New comment text.
   securitySchemes:
     apiKey:
       type: http

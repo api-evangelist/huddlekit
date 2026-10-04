@@ -121,6 +121,21 @@ paths:
                 error: Could not unsubscribe. Please retry.
 components:
   schemas:
+    DeleteWebhookSubscriptionResponse:
+      type: object
+      required:
+      - deleted
+      - id
+      properties:
+        deleted:
+          type: boolean
+          description: True if a subscription was removed; false if none matched (already deleted, or not created by this key).
+        id:
+          type: string
+          description: The id from the request path.
+      example:
+        deleted: true
+        id: 6b1f9c2e-4d7a-4c1b-9e3f-2a8d5c7b1e04
     WebhookSubscription:
       type: object
       description: A webhook subscription created with this API key.
@@ -183,40 +198,25 @@ components:
           type: boolean
           const: true
           description: Always true.
-    CreateWebhookSubscriptionRequest:
+    PlanRequiredError:
       type: object
-      description: The URL to deliver events to and, optionally, which events. `target_url` and `url` are accepted as alternative spellings of `targetUrl`, and `events` as an alternative spelling of `event_types`.
+      description: Returned with 403 when the key's workspace is not on a plan that includes API access.
       required:
-      - targetUrl
+      - error
+      - requiredPlans
       properties:
-        targetUrl:
+        error:
           type: string
-          format: uri
-          pattern: ^https://.+
-          description: The https:// URL to POST events to. Must be a public URL outside Huddlekit.
-        target_url:
-          type: string
-          format: uri
-          description: Alternative spelling of `targetUrl`, used when `targetUrl` is absent.
-        url:
-          type: string
-          format: uri
-          description: Alternative spelling of `targetUrl`, used when `targetUrl` and `target_url` are absent.
-        event_types:
+          description: Human-readable message naming the required plan.
+        requiredPlans:
           type: array
-          description: Event types to deliver. Omit it, or send an empty array, to receive every event type. Unknown values are a 400.
+          description: Plan ids that include API access.
           items:
-            $ref: '#/components/schemas/EventType'
-        events:
-          type: array
-          description: Alternative spelling of `event_types`, used when `event_types` is absent.
-          items:
-            $ref: '#/components/schemas/EventType'
+            type: string
       example:
-        targetUrl: https://hooks.example.com/huddlekit
-        event_types:
-        - comment.created
-        - comment.status_changed
+        error: This feature requires the Team plan.
+        requiredPlans:
+        - team
     WebhookSubscriptionCreated:
       type: object
       description: A new subscription. This is the only time the signing secret is returned.
@@ -260,16 +260,48 @@ components:
         secret: whsec_0000000000000000000000000000000000000000000000000000000000000000
         secret_shown_once: true
         known_platform: false
-    ListWebhookSubscriptionsResponse:
+    EventType:
+      type: string
+      enum:
+      - comment.created
+      - comment.status_changed
+      - comment.text_changed
+      - comment.screenshot_ready
+      description: '`comment.created`: a comment was added. `comment.status_changed`: its status changed. `comment.text_changed`: its text was edited. `comment.screenshot_ready`: its screenshot finished capturing (website and webapp comments only). The **Send test event** button in the Huddlekit app also sends `ping`, with a made-up comment and no `source` or `permalink`; answer it with any 2xx and don''t treat it as a real event.'
+    CreateWebhookSubscriptionRequest:
       type: object
+      description: The URL to deliver events to and, optionally, which events. `target_url` and `url` are accepted as alternative spellings of `targetUrl`, and `events` as an alternative spelling of `event_types`.
       required:
-      - hooks
+      - targetUrl
       properties:
-        hooks:
+        targetUrl:
+          type: string
+          format: uri
+          pattern: ^https://.+
+          description: The https:// URL to POST events to. Must be a public URL outside Huddlekit.
+        target_url:
+          type: string
+          format: uri
+          description: Alternative spelling of `targetUrl`, used when `targetUrl` is absent.
+        url:
+          type: string
+          format: uri
+          description: Alternative spelling of `targetUrl`, used when `targetUrl` and `target_url` are absent.
+        event_types:
           type: array
-          description: Subscriptions created with this API key, newest first. Webhooks created in the Huddlekit app or with other keys are not included.
+          description: Event types to deliver. Omit it, or send an empty array, to receive every event type. Unknown values are a 400.
           items:
-            $ref: '#/components/schemas/WebhookSubscription'
+            $ref: '#/components/schemas/EventType'
+        events:
+          type: array
+          description: Alternative spelling of `event_types`, used when `event_types` is absent.
+          items:
+            $ref: '#/components/schemas/EventType'
+      example:
+        targetUrl: https://hooks.example.com/huddlekit
+        event_types:
+        - comment.created
+        - comment.status_changed
     Error:
       type: object
       description: Error body returned by every failed call.
@@ -285,49 +317,29 @@ components:
       example:
         error: Unauthorized
         detail: Invalid or revoked API key
-    PlanRequiredError:
+    ListWebhookSubscriptionsResponse:
       type: object
-      description: Returned with 403 when the key's workspace is not on a plan that includes API access.
       required:
-      - error
-      - requiredPlans
+      - hooks
       properties:
-        error:
-          type: string
-          description: Human-readable message naming the required plan.
-        requiredPlans:
+        hooks:
           type: array
-          description: Plan ids that include API access.
+          description: Subscriptions created with this API key, newest first. Webhooks created in the Huddlekit app or with other keys are not included.
           items:
-            type: string
-      example:
-        error: This feature requires the Team plan.
-        requiredPlans:
-        - team
-    DeleteWebhookSubscriptionResponse:
-      type: object
-      required:
-      - deleted
-      - id
-      properties:
-        deleted:
-          type: boolean
-          description: True if a subscription was removed; false if none matched (already deleted, or not created by this key).
-        id:
-          type: string
-          description: The id from the request path.
-      example:
-        deleted: true
-        id: 6b1f9c2e-4d7a-4c1b-9e3f-2a8d5c7b1e04
-    EventType:
-      type: string
-      enum:
-      - comment.created
-      - comment.status_changed
-      - comment.text_changed
-      - comment.screenshot_ready
-      description: '`comment.created`: a comment was added. `comment.status_changed`: its status changed. `comment.text_changed`: its text was edited. `comment.screenshot_ready`: its screenshot finished capturing (website and webapp comments only). The **Send test event** button in the Huddlekit app also sends `ping`, with a made-up comment and no `source` or `permalink`; answer it with any 2xx and don''t treat it as a real event.'
+            $ref: '#/components/schemas/WebhookSubscription'
   responses:
+    Forbidden:
+      description: The key lacks the scope this call needs (`{"error":"Forbidden","detail":"This key lacks the \"read\" scope"}`), or the workspace has no active Team subscription (body includes `requiredPlans`).
+      content:
+        application/json:
+          schema:
+            anyOf:
+            - $ref: '#/components/schemas/PlanRequiredError'
+            - $ref: '#/components/schemas/Error'
+          example:
+            error: This feature requires the Team plan.
+            requiredPlans:
+            - team
     BadRequest:
       description: The request was invalid. `error` says which field and why.
       content:
@@ -336,15 +348,6 @@ components:
             $ref: '#/components/schemas/Error'
           example:
             error: parent_id is required
-    Unauthorized:
-      description: No API key, a malformed `Authorization` header, or an invalid, revoked or expired key.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: Unauthorized
-            detail: 'Send your key as: Authorization: Bearer hk_live_…'
     ForbiddenScope:
       description: The key lacks the `write` scope.
       content:
@@ -354,6 +357,29 @@ components:
           example:
             error: Forbidden
             detail: This key lacks the "write" scope
+    InternalError:
+      description: The request could not be completed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: No API key, a malformed `Authorization` header, or an invalid, revoked or expired key.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Unauthorized
+            detail: 'Send your key as: Authorization: Bearer hk_live_…'
+    ServiceUnavailable:
+      description: A temporary failure, such as the API key, the workspace plan or the parent record could not be checked. Safe to retry.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Could not verify the workspace plan
     TooManyRequests:
       description: 'Rate limit exceeded. Limits: 200 reads and 30 writes per minute per API key, counted per endpoint group (`/me`, `/projects`, `/comments`, `/comments/{id}`, `/hooks`, `/events/recent`) and separately for reads and writes; `DELETE /hooks/{id}` counts toward the `/hooks` writes. Refused calls count too. Wait the number of seconds in `Retry-After`, then retry.'
       headers:
@@ -368,32 +394,6 @@ components:
             $ref: '#/components/schemas/Error'
           example:
             error: Too many requests
-    InternalError:
-      description: The request could not be completed.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    Forbidden:
-      description: The key lacks the scope this call needs (`{"error":"Forbidden","detail":"This key lacks the \"read\" scope"}`), or the workspace has no active Team subscription (body includes `requiredPlans`).
-      content:
-        application/json:
-          schema:
-            anyOf:
-            - $ref: '#/components/schemas/PlanRequiredError'
-            - $ref: '#/components/schemas/Error'
-          example:
-            error: This feature requires the Team plan.
-            requiredPlans:
-            - team
-    ServiceUnavailable:
-      description: A temporary failure, such as the API key, the workspace plan or the parent record could not be checked. Safe to retry.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: Could not verify the workspace plan
   securitySchemes:
     apiKey:
       type: http

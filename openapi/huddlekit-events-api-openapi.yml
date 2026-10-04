@@ -67,33 +67,6 @@ paths:
           $ref: '#/components/responses/ServiceUnavailable'
 components:
   schemas:
-    WebhookAuthor:
-      type: object
-      description: Who wrote the comment.
-      required:
-      - name
-      - kind
-      properties:
-        name:
-          type: string
-          description: Display name, or `Someone` when the name is unknown. Comments created through this API show as `API`.
-        kind:
-          type: string
-          enum:
-          - user
-          - guest
-          description: '`user` for a Huddlekit member, `guest` for anyone else.'
-    Change:
-      type: object
-      description: Before and after values of a changed field.
-      required:
-      - old
-      - new
-      properties:
-        old:
-          description: Previous value. Always null for text edits (the pre-edit text is never sent) and for screenshots.
-        new:
-          description: New value.
     WebsitePage:
       type: object
       title: Website page
@@ -107,21 +80,107 @@ components:
           - string
           - 'null'
           description: Page path, relative to the project's URL.
-    Error:
+    WebappPage:
       type: object
-      description: Error body returned by every failed call.
+      title: Web app page
+      description: Location of a web app comment.
+      additionalProperties: false
+      required:
+      - url
+      - path
+      - title
+      properties:
+        url:
+          type:
+          - string
+          - 'null'
+          description: Full URL of the page.
+        path:
+          type:
+          - string
+          - 'null'
+          description: Page path.
+        title:
+          type:
+          - string
+          - 'null'
+          description: Page title.
+    PlanRequiredError:
+      type: object
+      description: Returned with 403 when the key's workspace is not on a plan that includes API access.
       required:
       - error
+      - requiredPlans
       properties:
         error:
           type: string
-          description: Short, human-readable error message.
-        detail:
-          type: string
-          description: Extra explanation, when there is one.
+          description: Human-readable message naming the required plan.
+        requiredPlans:
+          type: array
+          description: Plan ids that include API access.
+          items:
+            type: string
       example:
-        error: Unauthorized
-        detail: Invalid or revoked API key
+        error: This feature requires the Team plan.
+        requiredPlans:
+        - team
+    Surface:
+      type: string
+      enum:
+      - website
+      - webapp
+      - document
+      description: 'What a comment is attached to. `website`: a website project (the parent is a project). `webapp`: a web app that runs the Huddlekit SDK widget (the parent is a web app). `document`: an uploaded PDF, image or video (the parent is a document).'
+    EventType:
+      type: string
+      enum:
+      - comment.created
+      - comment.status_changed
+      - comment.text_changed
+      - comment.screenshot_ready
+      description: '`comment.created`: a comment was added. `comment.status_changed`: its status changed. `comment.text_changed`: its text was edited. `comment.screenshot_ready`: its screenshot finished capturing (website and webapp comments only). The **Send test event** button in the Huddlekit app also sends `ping`, with a made-up comment and no `source` or `permalink`; answer it with any 2xx and don''t treat it as a real event.'
+    ListRecentEventsResponse:
+      type: object
+      required:
+      - events
+      - sample
+      properties:
+        events:
+          type: array
+          description: Sample payloads built from the newest comments, newest first.
+          items:
+            $ref: '#/components/schemas/WebhookPayload'
+        sample:
+          type: boolean
+          const: true
+          description: 'Always true: these are samples, not replayed deliveries.'
+    DocumentPage:
+      type: object
+      title: Document page
+      description: Location of a document comment.
+      additionalProperties: false
+      required:
+      - page_number
+      properties:
+        page_number:
+          type:
+          - integer
+          - 'null'
+          description: Page number (1-based).
+        video_timestamp:
+          type: number
+          description: Position in seconds. Present only for comments on a video.
+    Change:
+      type: object
+      description: Before and after values of a changed field.
+      required:
+      - old
+      - new
+      properties:
+        old:
+          description: Previous value. Always null for text edits (the pre-edit text is never sent) and for screenshots.
+        new:
+          description: New value.
     WebhookComment:
       type: object
       description: The comment as it is when the event is sent.
@@ -241,105 +300,50 @@ components:
           description: 'What changed, keyed by field: `status` for comment.status_changed, `text` for comment.text_changed (with `old` always null), `screenshot` for comment.screenshot_ready (with `old` null). Null for comment.created.'
           additionalProperties:
             $ref: '#/components/schemas/Change'
-    ListRecentEventsResponse:
+    WebhookAuthor:
       type: object
+      description: Who wrote the comment.
       required:
-      - events
-      - sample
+      - name
+      - kind
       properties:
-        events:
-          type: array
-          description: Sample payloads built from the newest comments, newest first.
-          items:
-            $ref: '#/components/schemas/WebhookPayload'
-        sample:
-          type: boolean
-          const: true
-          description: 'Always true: these are samples, not replayed deliveries.'
-    Surface:
-      type: string
-      enum:
-      - website
-      - webapp
-      - document
-      description: 'What a comment is attached to. `website`: a website project (the parent is a project). `webapp`: a web app that runs the Huddlekit SDK widget (the parent is a web app). `document`: an uploaded PDF, image or video (the parent is a document).'
-    PlanRequiredError:
+        name:
+          type: string
+          description: Display name, or `Someone` when the name is unknown. Comments created through this API show as `API`.
+        kind:
+          type: string
+          enum:
+          - user
+          - guest
+          description: '`user` for a Huddlekit member, `guest` for anyone else.'
+    Error:
       type: object
-      description: Returned with 403 when the key's workspace is not on a plan that includes API access.
+      description: Error body returned by every failed call.
       required:
       - error
-      - requiredPlans
       properties:
         error:
           type: string
-          description: Human-readable message naming the required plan.
-        requiredPlans:
-          type: array
-          description: Plan ids that include API access.
-          items:
-            type: string
+          description: Short, human-readable error message.
+        detail:
+          type: string
+          description: Extra explanation, when there is one.
       example:
-        error: This feature requires the Team plan.
-        requiredPlans:
-        - team
-    EventType:
-      type: string
-      enum:
-      - comment.created
-      - comment.status_changed
-      - comment.text_changed
-      - comment.screenshot_ready
-      description: '`comment.created`: a comment was added. `comment.status_changed`: its status changed. `comment.text_changed`: its text was edited. `comment.screenshot_ready`: its screenshot finished capturing (website and webapp comments only). The **Send test event** button in the Huddlekit app also sends `ping`, with a made-up comment and no `source` or `permalink`; answer it with any 2xx and don''t treat it as a real event.'
-    WebappPage:
-      type: object
-      title: Web app page
-      description: Location of a web app comment.
-      additionalProperties: false
-      required:
-      - url
-      - path
-      - title
-      properties:
-        url:
-          type:
-          - string
-          - 'null'
-          description: Full URL of the page.
-        path:
-          type:
-          - string
-          - 'null'
-          description: Page path.
-        title:
-          type:
-          - string
-          - 'null'
-          description: Page title.
-    DocumentPage:
-      type: object
-      title: Document page
-      description: Location of a document comment.
-      additionalProperties: false
-      required:
-      - page_number
-      properties:
-        page_number:
-          type:
-          - integer
-          - 'null'
-          description: Page number (1-based).
-        video_timestamp:
-          type: number
-          description: Position in seconds. Present only for comments on a video.
+        error: Unauthorized
+        detail: Invalid or revoked API key
   responses:
-    BadRequest:
-      description: The request was invalid. `error` says which field and why.
+    Forbidden:
+      description: The key lacks the scope this call needs (`{"error":"Forbidden","detail":"This key lacks the \"read\" scope"}`), or the workspace has no active Team subscription (body includes `requiredPlans`).
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            anyOf:
+            - $ref: '#/components/schemas/PlanRequiredError'
+            - $ref: '#/components/schemas/Error'
           example:
-            error: parent_id is required
+            error: This feature requires the Team plan.
+            requiredPlans:
+            - team
     Unauthorized:
       description: No API key, a malformed `Authorization` header, or an invalid, revoked or expired key.
       content:
@@ -349,6 +353,22 @@ components:
           example:
             error: Unauthorized
             detail: 'Send your key as: Authorization: Bearer hk_live_…'
+    BadRequest:
+      description: The request was invalid. `error` says which field and why.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: parent_id is required
+    ServiceUnavailable:
+      description: A temporary failure, such as the API key, the workspace plan or the parent record could not be checked. Safe to retry.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Could not verify the workspace plan
     TooManyRequests:
       description: 'Rate limit exceeded. Limits: 200 reads and 30 writes per minute per API key, counted per endpoint group (`/me`, `/projects`, `/comments`, `/comments/{id}`, `/hooks`, `/events/recent`) and separately for reads and writes; `DELETE /hooks/{id}` counts toward the `/hooks` writes. Refused calls count too. Wait the number of seconds in `Retry-After`, then retry.'
       headers:
@@ -363,26 +383,6 @@ components:
             $ref: '#/components/schemas/Error'
           example:
             error: Too many requests
-    Forbidden:
-      description: The key lacks the scope this call needs (`{"error":"Forbidden","detail":"This key lacks the \"read\" scope"}`), or the workspace has no active Team subscription (body includes `requiredPlans`).
-      content:
-        application/json:
-          schema:
-            anyOf:
-            - $ref: '#/components/schemas/PlanRequiredError'
-            - $ref: '#/components/schemas/Error'
-          example:
-            error: This feature requires the Team plan.
-            requiredPlans:
-            - team
-    ServiceUnavailable:
-      description: A temporary failure, such as the API key, the workspace plan or the parent record could not be checked. Safe to retry.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: Could not verify the workspace plan
   securitySchemes:
     apiKey:
       type: http

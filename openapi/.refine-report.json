@@ -17,7 +17,14 @@
   "notes": [
     "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
     "huddlekit-api-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
-    "apis.yml register: written (+6 apis, 7 total)"
+    "apis.yml register: already-registered"
   ],
-  "skipped": []
+  "skipped": [
+    "huddlekit-account-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "huddlekit-comments-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "huddlekit-events-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "huddlekit-projects-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "huddlekit-webhook-events-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "huddlekit-webhook-subscriptions-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }

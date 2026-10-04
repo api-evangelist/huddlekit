@@ -146,103 +146,106 @@ paths:
         '503':
           $ref: '#/components/responses/ServiceUnavailable'
 components:
-  responses:
-    Unauthorized:
-      description: No API key, a malformed `Authorization` header, or an invalid, revoked or expired key.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: Unauthorized
-            detail: 'Send your key as: Authorization: Bearer hk_live_…'
-    InternalError:
-      description: The request could not be completed.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    BadRequest:
-      description: The request was invalid. `error` says which field and why.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: parent_id is required
-    TooManyRequests:
-      description: 'Rate limit exceeded. Limits: 200 reads and 30 writes per minute per API key, counted per endpoint group (`/me`, `/projects`, `/comments`, `/comments/{id}`, `/hooks`, `/events/recent`) and separately for reads and writes; `DELETE /hooks/{id}` counts toward the `/hooks` writes. Refused calls count too. Wait the number of seconds in `Retry-After`, then retry.'
-      headers:
-        Retry-After:
-          description: Whole seconds until the limit resets (at least 1).
-          schema:
-            type: integer
-            minimum: 1
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: Too many requests
-    ServiceUnavailable:
-      description: A temporary failure, such as the API key, the workspace plan or the parent record could not be checked. Safe to retry.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: Could not verify the workspace plan
-    NotFound:
-      description: Not found, or it belongs to another workspace (the two cases are indistinguishable on purpose). An id that isn't a valid UUID also answers 404.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: Not found
-    Forbidden:
-      description: The key lacks the scope this call needs (`{"error":"Forbidden","detail":"This key lacks the \"read\" scope"}`), or the workspace has no active Team subscription (body includes `requiredPlans`).
-      content:
-        application/json:
-          schema:
-            anyOf:
-            - $ref: '#/components/schemas/PlanRequiredError'
-            - $ref: '#/components/schemas/Error'
-          example:
-            error: This feature requires the Team plan.
-            requiredPlans:
-            - team
   schemas:
-    Error:
+    PlanRequiredError:
       type: object
-      description: Error body returned by every failed call.
+      description: Returned with 403 when the key's workspace is not on a plan that includes API access.
       required:
       - error
+      - requiredPlans
       properties:
         error:
           type: string
-          description: Short, human-readable error message.
-        detail:
-          type: string
-          description: Extra explanation, when there is one.
+          description: Human-readable message naming the required plan.
+        requiredPlans:
+          type: array
+          description: Plan ids that include API access.
+          items:
+            type: string
       example:
-        error: Unauthorized
-        detail: Invalid or revoked API key
-    UpdateCommentStatusRequest:
+        error: This feature requires the Team plan.
+        requiredPlans:
+        - team
+    CreateCommentRequest:
       type: object
-      description: The new status. `status` is the only writable field; sending `text` is refused with a 400. Other fields are ignored.
+      description: 'A new comment. Which location fields are allowed depends on `surface`: `path` for website; `url`, `page_title` and `path` for webapp; `page_number` and `video_timestamp` for document. Sending a location field that belongs to another surface is a 400 (except `path` on a document, which is ignored). A null or empty-string location field counts as not sent.'
       required:
-      - status
+      - parent_id
+      - text
       properties:
-        status:
-          $ref: '#/components/schemas/CommentStatus'
-          description: New status for the comment.
+        parent_id:
+          type: string
+          format: uuid
+          description: Id of the project, web app or document to comment on (from `GET /projects`). Must belong to the key's workspace.
+        project_id:
+          type: string
+          format: uuid
+          deprecated: true
+          description: Deprecated alias of `parent_id`, used only when `parent_id` is absent.
         surface:
           $ref: '#/components/schemas/Surface'
           default: website
-          description: Surface the comment belongs to. Defaults to `website`. A comment id looked up on the wrong surface returns 404.
+          description: What `parent_id` refers to. Defaults to `website`.
+        text:
+          type: string
+          minLength: 1
+          maxLength: 10000
+          description: Comment text. Must not be blank. At most 10,000 characters.
+        status:
+          $ref: '#/components/schemas/CommentStatus'
+          default: open
+          description: Initial status. Defaults to `open`.
+        path:
+          type: string
+          maxLength: 2048
+          description: Website and webapp only. Page path the comment is about, such as `/pricing`. Sanitized before it is stored. Defaults to `/` for a website, and to the path of `url` (or `/`) for a web app. Ignored for documents.
+        url:
+          type: string
+          format: uri
+          maxLength: 2048
+          description: Webapp only. Full http:// or https:// URL of the page on your site that the comment is about.
+        page_title:
+          type: string
+          maxLength: 500
+          description: Webapp only. Title of the page. Trimmed; at most 500 characters.
+        page_number:
+          type: integer
+          minimum: 1
+          description: Document only. Page number, 1 or more. Defaults to 1.
+        video_timestamp:
+          type: number
+          minimum: 0
+          description: Document only, and only when the document is a video. Position in seconds, 0 or more.
       example:
-        status: resolved
+        parent_id: 0d3c7a52-9e61-4f0b-8a2d-5b7e1c4f9a36
+        surface: website
+        text: Hero headline wraps badly at 1024px.
+        path: /
+    CommentStatus:
+      type: string
+      enum:
+      - open
+      - in-review
+      - in-progress
+      - resolved
+      description: Workflow status of a comment. Setting `resolved` also marks the comment resolved; any other value marks it unresolved.
+    CreateCommentResponse:
+      type: object
+      required:
+      - comment
+      - surface
+      properties:
+        comment:
+          $ref: '#/components/schemas/CreatedComment'
+        surface:
+          $ref: '#/components/schemas/Surface'
+      example:
+        comment:
+          id: 6b1f9c2e-4d7a-4c1b-9e3f-2a8d5c7b1e04
+          comment_number: 43
+          text: Hero headline wraps badly at 1024px.
+          status: open
+          created_at: '2026-09-27T08:00:00.000Z'
         surface: website
     WebsiteComment:
       type: object
@@ -324,36 +327,76 @@ components:
           - 'null'
           format: date-time
           description: When the comment was last updated.
-    ListCommentsResponse:
+    Error:
       type: object
+      description: Error body returned by every failed call.
       required:
-      - comments
-      - surface
+      - error
       properties:
-        comments:
-          type: array
-          description: Comments on the parent, newest first. The shape of each item depends on `surface`.
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/WebsiteComment'
-            - $ref: '#/components/schemas/WebappComment'
-            - $ref: '#/components/schemas/DocumentComment'
+        error:
+          type: string
+          description: Short, human-readable error message.
+        detail:
+          type: string
+          description: Extra explanation, when there is one.
+      example:
+        error: Unauthorized
+        detail: Invalid or revoked API key
+    UpdateCommentStatusRequest:
+      type: object
+      description: The new status. `status` is the only writable field; sending `text` is refused with a 400. Other fields are ignored.
+      required:
+      - status
+      properties:
+        status:
+          $ref: '#/components/schemas/CommentStatus'
+          description: New status for the comment.
         surface:
           $ref: '#/components/schemas/Surface'
+          default: website
+          description: Surface the comment belongs to. Defaults to `website`. A comment id looked up on the wrong surface returns 404.
       example:
-        comments:
-        - id: 6b1f9c2e-4d7a-4c1b-9e3f-2a8d5c7b1e04
-          comment_number: 42
-          text: The signup button overlaps the footer on mobile.
-          status: open
-          priority: Medium
-          resolved: false
-          is_private: false
-          path: /pricing
-          screenshot: null
-          created_at: '2026-09-20T10:15:00.000Z'
-          updated_at: '2026-09-20T10:15:00.000Z'
+        status: resolved
         surface: website
+    UpdatedComment:
+      type: object
+      description: The comment after the update.
+      required:
+      - id
+      - comment_number
+      - text
+      - status
+      - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Comment id.
+        comment_number:
+          type:
+          - integer
+          - 'null'
+          description: Sequential number of the comment within its parent.
+        text:
+          type: string
+          description: The comment text (unchanged).
+        status:
+          type:
+          - string
+          - 'null'
+          enum:
+          - open
+          - in-review
+          - in-progress
+          - resolved
+          - null
+          description: 'Workflow status: `open`, `in-review`, `in-progress` or `resolved`.'
+        updated_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: When the comment was last updated.
     CreatedComment:
       type: object
       description: The comment that was created.
@@ -393,31 +436,6 @@ components:
           - 'null'
           format: date-time
           description: When the comment was created.
-    CreateCommentResponse:
-      type: object
-      required:
-      - comment
-      - surface
-      properties:
-        comment:
-          $ref: '#/components/schemas/CreatedComment'
-        surface:
-          $ref: '#/components/schemas/Surface'
-      example:
-        comment:
-          id: 6b1f9c2e-4d7a-4c1b-9e3f-2a8d5c7b1e04
-          comment_number: 43
-          text: Hero headline wraps badly at 1024px.
-          status: open
-          created_at: '2026-09-27T08:00:00.000Z'
-        surface: website
-    Surface:
-      type: string
-      enum:
-      - website
-      - webapp
-      - document
-      description: 'What a comment is attached to. `website`: a website project (the parent is a project). `webapp`: a web app that runs the Huddlekit SDK widget (the parent is a web app). `document`: an uploaded PDF, image or video (the parent is a document).'
     WebappComment:
       type: object
       description: 'A comment on a web app (`surface: webapp`).'
@@ -508,53 +526,43 @@ components:
           - 'null'
           format: date-time
           description: When the comment was last updated.
-    CommentStatus:
+    ListCommentsResponse:
+      type: object
+      required:
+      - comments
+      - surface
+      properties:
+        comments:
+          type: array
+          description: Comments on the parent, newest first. The shape of each item depends on `surface`.
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/WebsiteComment'
+            - $ref: '#/components/schemas/WebappComment'
+            - $ref: '#/components/schemas/DocumentComment'
+        surface:
+          $ref: '#/components/schemas/Surface'
+      example:
+        comments:
+        - id: 6b1f9c2e-4d7a-4c1b-9e3f-2a8d5c7b1e04
+          comment_number: 42
+          text: The signup button overlaps the footer on mobile.
+          status: open
+          priority: Medium
+          resolved: false
+          is_private: false
+          path: /pricing
+          screenshot: null
+          created_at: '2026-09-20T10:15:00.000Z'
+          updated_at: '2026-09-20T10:15:00.000Z'
+        surface: website
+    Surface:
       type: string
       enum:
-      - open
-      - in-review
-      - in-progress
-      - resolved
-      description: Workflow status of a comment. Setting `resolved` also marks the comment resolved; any other value marks it unresolved.
-    UpdatedComment:
-      type: object
-      description: The comment after the update.
-      required:
-      - id
-      - comment_number
-      - text
-      - status
-      - updated_at
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Comment id.
-        comment_number:
-          type:
-          - integer
-          - 'null'
-          description: Sequential number of the comment within its parent.
-        text:
-          type: string
-          description: The comment text (unchanged).
-        status:
-          type:
-          - string
-          - 'null'
-          enum:
-          - open
-          - in-review
-          - in-progress
-          - resolved
-          - null
-          description: 'Workflow status: `open`, `in-review`, `in-progress` or `resolved`.'
-        updated_at:
-          type:
-          - string
-          - 'null'
-          format: date-time
-          description: When the comment was last updated.
+      - website
+      - webapp
+      - document
+      description: 'What a comment is attached to. `website`: a website project (the parent is a project). `webapp`: a web app that runs the Huddlekit SDK widget (the parent is a web app). `document`: an uploaded PDF, image or video (the parent is a document).'
     DocumentComment:
       type: object
       description: 'A comment on a document (`surface: document`). Document comments have no path, URL or screenshot.'
@@ -635,61 +643,6 @@ components:
           - 'null'
           format: date-time
           description: When the comment was last updated.
-    CreateCommentRequest:
-      type: object
-      description: 'A new comment. Which location fields are allowed depends on `surface`: `path` for website; `url`, `page_title` and `path` for webapp; `page_number` and `video_timestamp` for document. Sending a location field that belongs to another surface is a 400 (except `path` on a document, which is ignored). A null or empty-string location field counts as not sent.'
-      required:
-      - parent_id
-      - text
-      properties:
-        parent_id:
-          type: string
-          format: uuid
-          description: Id of the project, web app or document to comment on (from `GET /projects`). Must belong to the key's workspace.
-        project_id:
-          type: string
-          format: uuid
-          deprecated: true
-          description: Deprecated alias of `parent_id`, used only when `parent_id` is absent.
-        surface:
-          $ref: '#/components/schemas/Surface'
-          default: website
-          description: What `parent_id` refers to. Defaults to `website`.
-        text:
-          type: string
-          minLength: 1
-          maxLength: 10000
-          description: Comment text. Must not be blank. At most 10,000 characters.
-        status:
-          $ref: '#/components/schemas/CommentStatus'
-          default: open
-          description: Initial status. Defaults to `open`.
-        path:
-          type: string
-          maxLength: 2048
-          description: Website and webapp only. Page path the comment is about, such as `/pricing`. Sanitized before it is stored. Defaults to `/` for a website, and to the path of `url` (or `/`) for a web app. Ignored for documents.
-        url:
-          type: string
-          format: uri
-          maxLength: 2048
-          description: Webapp only. Full http:// or https:// URL of the page on your site that the comment is about.
-        page_title:
-          type: string
-          maxLength: 500
-          description: Webapp only. Title of the page. Trimmed; at most 500 characters.
-        page_number:
-          type: integer
-          minimum: 1
-          description: Document only. Page number, 1 or more. Defaults to 1.
-        video_timestamp:
-          type: number
-          minimum: 0
-          description: Document only, and only when the document is a video. Position in seconds, 0 or more.
-      example:
-        parent_id: 0d3c7a52-9e61-4f0b-8a2d-5b7e1c4f9a36
-        surface: website
-        text: Hero headline wraps badly at 1024px.
-        path: /
     UpdateCommentStatusResponse:
       type: object
       required:
@@ -708,25 +661,72 @@ components:
           status: resolved
           updated_at: '2026-09-27T08:05:00.000Z'
         surface: website
-    PlanRequiredError:
-      type: object
-      description: Returned with 403 when the key's workspace is not on a plan that includes API access.
-      required:
-      - error
-      - requiredPlans
-      properties:
-        error:
-          type: string
-          description: Human-readable message naming the required plan.
-        requiredPlans:
-          type: array
-          description: Plan ids that include API access.
-          items:
-            type: string
-      example:
-        error: This feature requires the Team plan.
-        requiredPlans:
-        - team
+  responses:
+    Forbidden:
+      description: The key lacks the scope this call needs (`{"error":"Forbidden","detail":"This key lacks the \"read\" scope"}`), or the workspace has no active Team subscription (body includes `requiredPlans`).
+      content:
+        application/json:
+          schema:
+            anyOf:
+            - $ref: '#/components/schemas/PlanRequiredError'
+            - $ref: '#/components/schemas/Error'
+          example:
+            error: This feature requires the Team plan.
+            requiredPlans:
+            - team
+    BadRequest:
+      description: The request was invalid. `error` says which field and why.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: parent_id is required
+    NotFound:
+      description: Not found, or it belongs to another workspace (the two cases are indistinguishable on purpose). An id that isn't a valid UUID also answers 404.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Not found
+    TooManyRequests:
+      description: 'Rate limit exceeded. Limits: 200 reads and 30 writes per minute per API key, counted per endpoint group (`/me`, `/projects`, `/comments`, `/comments/{id}`, `/hooks`, `/events/recent`) and separately for reads and writes; `DELETE /hooks/{id}` counts toward the `/hooks` writes. Refused calls count too. Wait the number of seconds in `Retry-After`, then retry.'
+      headers:
+        Retry-After:
+          description: Whole seconds until the limit resets (at least 1).
+          schema:
+            type: integer
+            minimum: 1
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Too many requests
+    InternalError:
+      description: The request could not be completed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: No API key, a malformed `Authorization` header, or an invalid, revoked or expired key.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Unauthorized
+            detail: 'Send your key as: Authorization: Bearer hk_live_…'
+    ServiceUnavailable:
+      description: A temporary failure, such as the API key, the workspace plan or the parent record could not be checked. Safe to retry.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Could not verify the workspace plan
   parameters:
     Surface:
       name: surface

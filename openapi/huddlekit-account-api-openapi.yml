@@ -41,66 +41,7 @@ paths:
         '503':
           $ref: '#/components/responses/ServiceUnavailable'
 components:
-  responses:
-    Unauthorized:
-      description: No API key, a malformed `Authorization` header, or an invalid, revoked or expired key.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: Unauthorized
-            detail: 'Send your key as: Authorization: Bearer hk_live_…'
-    TooManyRequests:
-      description: 'Rate limit exceeded. Limits: 200 reads and 30 writes per minute per API key, counted per endpoint group (`/me`, `/projects`, `/comments`, `/comments/{id}`, `/hooks`, `/events/recent`) and separately for reads and writes; `DELETE /hooks/{id}` counts toward the `/hooks` writes. Refused calls count too. Wait the number of seconds in `Retry-After`, then retry.'
-      headers:
-        Retry-After:
-          description: Whole seconds until the limit resets (at least 1).
-          schema:
-            type: integer
-            minimum: 1
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: Too many requests
-    Forbidden:
-      description: The key lacks the scope this call needs (`{"error":"Forbidden","detail":"This key lacks the \"read\" scope"}`), or the workspace has no active Team subscription (body includes `requiredPlans`).
-      content:
-        application/json:
-          schema:
-            anyOf:
-            - $ref: '#/components/schemas/PlanRequiredError'
-            - $ref: '#/components/schemas/Error'
-          example:
-            error: This feature requires the Team plan.
-            requiredPlans:
-            - team
-    ServiceUnavailable:
-      description: A temporary failure, such as the API key, the workspace plan or the parent record could not be checked. Safe to retry.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: Could not verify the workspace plan
   schemas:
-    Error:
-      type: object
-      description: Error body returned by every failed call.
-      required:
-      - error
-      properties:
-        error:
-          type: string
-          description: Short, human-readable error message.
-        detail:
-          type: string
-          description: Extra explanation, when there is one.
-      example:
-        error: Unauthorized
-        detail: Invalid or revoked API key
     ApiKeyInfo:
       type: object
       description: The workspace and permissions of the API key that made the request.
@@ -162,6 +103,65 @@ components:
         error: This feature requires the Team plan.
         requiredPlans:
         - team
+    Error:
+      type: object
+      description: Error body returned by every failed call.
+      required:
+      - error
+      properties:
+        error:
+          type: string
+          description: Short, human-readable error message.
+        detail:
+          type: string
+          description: Extra explanation, when there is one.
+      example:
+        error: Unauthorized
+        detail: Invalid or revoked API key
+  responses:
+    Forbidden:
+      description: The key lacks the scope this call needs (`{"error":"Forbidden","detail":"This key lacks the \"read\" scope"}`), or the workspace has no active Team subscription (body includes `requiredPlans`).
+      content:
+        application/json:
+          schema:
+            anyOf:
+            - $ref: '#/components/schemas/PlanRequiredError'
+            - $ref: '#/components/schemas/Error'
+          example:
+            error: This feature requires the Team plan.
+            requiredPlans:
+            - team
+    Unauthorized:
+      description: No API key, a malformed `Authorization` header, or an invalid, revoked or expired key.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Unauthorized
+            detail: 'Send your key as: Authorization: Bearer hk_live_…'
+    ServiceUnavailable:
+      description: A temporary failure, such as the API key, the workspace plan or the parent record could not be checked. Safe to retry.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Could not verify the workspace plan
+    TooManyRequests:
+      description: 'Rate limit exceeded. Limits: 200 reads and 30 writes per minute per API key, counted per endpoint group (`/me`, `/projects`, `/comments`, `/comments/{id}`, `/hooks`, `/events/recent`) and separately for reads and writes; `DELETE /hooks/{id}` counts toward the `/hooks` writes. Refused calls count too. Wait the number of seconds in `Retry-After`, then retry.'
+      headers:
+        Retry-After:
+          description: Whole seconds until the limit resets (at least 1).
+          schema:
+            type: integer
+            minimum: 1
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Too many requests
   securitySchemes:
     apiKey:
       type: http
