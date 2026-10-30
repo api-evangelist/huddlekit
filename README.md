@@ -64,5 +64,143 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Huddlekit is a company surfaced via the API Evangelist harvest backlog (source: new-submission) and added to the network as a stub for full-pipeline profiling.
-- https://huddlekit.com
+Huddlekit provides a visual annotation tool that enables website feedback collection directly on live or staging sites. Teams can pin comments, screenshots, and technical details, turning feedback into actionable tasks. The platform integrates with popular tools like Linear, ClickUp, Notion, Slack, and Zapier, and offers API access for custom workflows. It targets agencies, freelancers, QA teams, and product teams seeking streamlined client communication and feedback management.
+
+**Areas:** Visual Annotation · Website Feedback · Developer Tools · AI Integration
+
+## Huddlekit on APIs.io
+
+Everything profiled for Huddlekit is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/huddlekit/](https://apis.io/providers/huddlekit/)** — or go straight to one of the APIs or properties below.
+
+### APIs (7)
+
+- [Huddlekit API](https://apis.io/apis/huddlekit/huddlekit-api/) — Read and create feedback comments, change their status and subscribe to comment webhooks.
+- [Huddlekit Account API](https://apis.io/apis/huddlekit/huddlekit-account-api/) — The API key and its workspace.
+- [Huddlekit Comments API](https://apis.io/apis/huddlekit/huddlekit-comments-api/) — Read, create and change the status of comments.
+- [Huddlekit Events API](https://apis.io/apis/huddlekit/huddlekit-events-api/) — Sample event payloads.
+- [Huddlekit Projects API](https://apis.io/apis/huddlekit/huddlekit-projects-api/) — Website projects, web apps and documents that comments are attached to.
+- [Huddlekit Webhook events API](https://apis.io/apis/huddlekit/huddlekit-webhook-events-api/) — Requests Huddlekit sends to subscribed URLs.
+- [Huddlekit Webhook subscriptions API](https://apis.io/apis/huddlekit/huddlekit-webhook-subscriptions-api/) — Subscribe URLs to comment events (REST hooks).
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### AsyncAPI (1)
+
+Event-driven and webhook contracts.
+
+- [Huddlekit Webhooks](https://apis.io/asyncapis/huddlekit/huddlekit-webhooks/)
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [huddlekit-mcp.yml](https://apis.io/servers/huddlekit/huddlekit-mcp-yml/)
+
+#### JSON Schema (6)
+
+The data models the API reads and writes.
+
+- [ApiKeyInfo](https://apis.io/schemas/huddlekit/huddlekit-api-key-info/)
+- [CreateCommentRequest](https://apis.io/schemas/huddlekit/huddlekit-create-comment-request/)
+- [CreateWebhookSubscriptionRequest](https://apis.io/schemas/huddlekit/huddlekit-create-webhook-subscription-request/)
+- [ListCommentsResponse](https://apis.io/schemas/huddlekit/huddlekit-list-comments-response/)
+- [ListProjectsResponse](https://apis.io/schemas/huddlekit/huddlekit-list-projects-response/)
+- [WebhookSubscriptionCreated](https://apis.io/schemas/huddlekit/huddlekit-webhook-subscription-created/)
+
+#### JSON-LD (1)
+
+Linked-data contexts for the provider's vocabulary.
+
+- [Huddlekit Context](https://apis.io/jsonld/huddlekit/huddlekit-context/)
+
+#### Governance rules (1)
+
+Spectral rulesets for the provider's contracts.
+
+- [Huddlekit API Rules](https://apis.io/rules/huddlekit/huddlekit-rules/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Huddlekit Domain Security](https://apis.io/security/huddlekit/huddlekit-domain-security/)
+- [Huddlekit Vulnerability Disclosure](https://apis.io/security/huddlekit/huddlekit-vulnerability-disclosure/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Huddlekit Plans Pricing](https://apis.io/plans/huddlekit/huddlekit-plans-pricing/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://huddlekit.com)
+- [Documentation](https://huddlekit.com/integrations/api)
+- [Getting started](https://huddlekit.com/support/integrations)
+- [API reference](https://huddlekit.com/llms.txt)
+- [Pricing](https://huddlekit.com/pricing)
+- [Sign up](https://huddlekit.com)
+- [Support](https://huddlekit.com/support)
+- [Blog](https://huddlekit.com/blog)
+- [Security](https://huddlekit.com/privacy)
+- [Terms of service](https://huddlekit.com/terms)
+- [Privacy policy](https://huddlekit.com/privacy)
+
+## API Evangelist rating
+
+**Kin Score 54.3** — strong · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 66.7 |
+| Contract quality | 74.1 |
+| Contract governance | 22.0 |
+| Operational transparency | 18.4 |
+| Developer ergonomics | 40.5 |
+| Access clarity | 76.3 |
+
+**Agent readiness 39.3** — agent-ready (gated down from agent-native)
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | documented (partial credit) |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | derived (partial credit) |
+| OpenAPI Examples | partial |
+| Rate Limit Signal | verified |
+| Event Surface Described | yes |
+| Agent Skills | — |
+| Well Known Catalog | yes |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | verified |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | na |
+| Operation Distinctiveness | distinct |
+
+**Regulatory alignment 24.5** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/huddlekit/](https://apis.io/providers/huddlekit/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Huddlekit: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/huddlekit/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
